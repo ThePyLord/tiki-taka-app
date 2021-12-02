@@ -45,6 +45,7 @@ export default class Piece {
 	}
 
 
+
 	clear(x: number, y: number, width: number, height: number): void {
 		this.ctx.clearRect(x, y, width, height)
 	}

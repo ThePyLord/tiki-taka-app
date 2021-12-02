@@ -9,3 +9,6 @@ TO DO:
 IN PROGRESS:
  - Checking if the game is won
  - 
+
+VULNERABILITIES:
+ - trim-newlines module(high severity)

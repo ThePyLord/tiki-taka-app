@@ -50,12 +50,14 @@ export class Game {
 	private update(): void {
 		// Update all the game objects
 		if(this.checkWin()) {
+			cancelAnimationFrame(this.run.bind(this))
 			this.canvas.removeEventListener('click', (e) => {
+				e.preventDefault()
 				this.handlePlayerInput(e, false)
 			})
 
 			// print the winningPath array	
-			console.log(this.winningPath)		
+			console.log(this.winningPath)
 			// Draw the winning line			
 			this.ctx.strokeStyle = '#2D47A0'
 			this.ctx.beginPath()
@@ -95,7 +97,7 @@ export class Game {
 			this.ctx.lineTo(i * this.cellWidth, this.canvas.height)
 			this.ctx.stroke()
 		}
-		
+
 	}
 	
 	// Check if the board is full
@@ -151,8 +153,10 @@ export class Game {
 					this.clickTurn = (this.clickTurn + 1) % 2
 				}
 			}
-			
-		}				
+		}
+		else if(gameState === false) {
+			console.log('game state is false')
+		}	
 	}
 
 
@@ -168,6 +172,7 @@ export class Game {
 	
 
 		for (let i = 0; i < Game.board.length; i++) {
+
 			for (let j = 0; j < Game.board[i].length; j++) {
 				if (Game.board[i][j]) {
 
@@ -198,8 +203,8 @@ export class Game {
 			}
 		}
 
-		const passWin = this.winningPath.every(val => Game.board[val[0]][val[1]].getType() === pieceType.nought)
 		if (numNoughtPieces === 3) {
+			const passWin = this.winningPath.every(val => Game.board[val[0]][val[1]].getType() === pieceType.nought)
 			this.winner = pieceType.nought
 			console.log(`PassWin is: ${passWin}`)
 			isWin = true
@@ -258,7 +263,7 @@ export class Game {
 		return vertical
 	}
 
-	private checkDiagonal(p: Piece) {
+	private checkDiagonal(row: number, col: number, p: Piece) {
 		let isDiagonal = false
 		const valInMat = p.getType()
 		for (let i = 0; i < Game.board.length; ++i) {
@@ -280,31 +285,29 @@ export class Game {
 
 	private clearBoard() {
 		this.clickTurn = 0
+
 		for (let i = 0; i < this.dims; i++) {
 			for (let j = 0; j < this.dims; j++) {
 				Game.board[i][j] = null
 				Game.flags[i][j] = false
-				
 				this.ctx.clearRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight)
 				this.ctx.fillStyle = '#000'
 				this.ctx.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight)
 				this.ctx.strokeStyle = '#fff'
 				this.ctx.lineWidth = 1.3
-
+				
 				this.ctx.beginPath()
 				this.ctx.moveTo(0, i * this.cellHeight)
 				this.ctx.lineTo(this.canvas.width, i * this.cellHeight)
 				this.ctx.stroke()
-
+				
 				this.ctx.beginPath()
 				this.ctx.moveTo(i * this.cellWidth, 0)
 				this.ctx.lineTo(i * this.cellWidth, this.canvas.height)
 				this.ctx.stroke()
-
+				
 			}
 		}
-
-		console.log('board cleared.')
 	}
 
 	run(): void {
