@@ -7,8 +7,8 @@ TO DO:
 - Add sound effects
 
 IN PROGRESS:
- - Checking if the game is won
- - 
+ - Checking if the game is won(rows and diagonal works[05/12/2021])
+ - Game login custom title bar 
 
 VULNERABILITIES:
  - trim-newlines module(high severity)

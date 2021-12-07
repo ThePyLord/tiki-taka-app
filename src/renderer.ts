@@ -36,7 +36,39 @@ import { Game } from './components/Game'
 // nodeIntegration is set to true in webPreferences.
 // Use preload.js to selectively enable features
 // needed in the renderer process.
+// window.api.createWin()
 
+const choices = document.querySelector('.choice').children as HTMLCollectionOf<HTMLElement>
+for (let i = 0; i < choices.length; i++) {
+	const element = choices[i];
+	element.addEventListener('click', function()  {
+		this.classList.toggle('active')
+		if(this.classList.contains('active')) {
+			this.style.color = 'rgb(84, 118, 192)'
+			console.log(this.classList)
+		}
+		else {
+			this.style.color = '#000'
+		}
+	})
+}
+
+document.querySelector('.btn').addEventListener('click', toggleTheme)
+
+// Toggle theme
+function toggleTheme() {
+	document.body.classList.toggle('dark-mode')
+	this.classList.toggle('active')
+	if(this.classList.contains('active')) {
+		this.style.color = '#fff'
+	}
+	else {
+		this.style.color = '#000'
+	}
+}
+
+
+/** GAME INITIALIZATION */
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
 const game = new Game(canvas, ctx)

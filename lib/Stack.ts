@@ -32,4 +32,8 @@ export class Stack<T> implements IStack<T> {
 	size(): number {
 		return this.storage.length
 	}
+
+	clear(): void {
+		this.storage = []
+	}
 }

@@ -2,31 +2,33 @@ import Piece, { pieceType } from './Piece'
 import { Stack } from '../../lib/Stack'
 // import { SoundsOfTiki } from '../../lib/Music'
 
-const pieceStack = new Stack<Piece>(9)
+const pieceStack = new Stack<Piece>()
 
 // Create a game object that contains all the game logic
 export class Game {
 	private canvas: HTMLCanvasElement
 	private ctx: CanvasRenderingContext2D
-	private readonly dims = 3
+	private readonly dims: number
 	private winningPath: number[][]
 
 	private clickTurn = 0
 	private cellWidth: number
 	private cellHeight: number
 	private winner: pieceType | null = null
-	private clickDisabled = true
 	static board: Piece[][] | null
-	static flags: boolean[][]
-	private gameOver = false
+	private col: number
+	private row: number
 
-	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+	/**
+	 * creates a new Game
+	 * @param canvas The canvas to draw the board on
+	 * @param ctx rendering context
+	 * @param dims the dimensions of the board
+	 */
+	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, dims?: number) {
 		this.canvas = canvas
-		// this.canvas.addEventListener('click', this.handlePlayerInput.bind(this))
-		this.canvas.addEventListener('click', (e) => {
-			this.handlePlayerInput(e, true)
-		})
-
+		this.canvas.addEventListener('click', this.handlePlayerInput.bind(this))
+		this.dims = dims || 3
 		this.ctx = ctx
 		this.cellWidth = Math.floor(this.canvas.width / this.dims)
 		this.cellHeight = Math.floor(this.canvas.height / this.dims)
@@ -34,48 +36,64 @@ export class Game {
 		ctx.fillStyle = '#000'
 		ctx.fillRect(0, 0, canvas.width, canvas.height)
 		Game.board = new Array(this.dims)
-		Game.flags = new Array(this.dims)
 		this.winningPath = new Array(Game.board.length)
 		// Initialize the board and flags
 		for (let i = 0; i < this.dims; i++) {
 			Game.board[i] = new Array(this.dims)
-			Game.flags[i] = new Array(this.dims)
-			this.winningPath[i] = new Array(this.dims)
-			for (let j = 0; j < this.dims; j++) {
-				Game.flags[i][j] = false
-			}
+			this.winningPath[i] = new Array(this.dims-1)
 		}
 	}
 
 	private update(): void {
-		// Update all the game objects
-		if(this.checkWin()) {
-			cancelAnimationFrame(this.run.bind(this))
-			this.canvas.removeEventListener('click', (e) => {
-				e.preventDefault()
-				this.handlePlayerInput(e, false)
-			})
-
-			// print the winningPath array	
-			console.log(this.winningPath)
-			// Draw the winning line			
-			this.ctx.strokeStyle = '#2D47A0'
-			this.ctx.beginPath()
-			this.ctx.moveTo(this.cellWidth/2, this.cellHeight/2)
-			this.ctx.lineTo(this.canvas.width-(this.cellWidth/2), this.canvas.height - (this.cellHeight/2))
-			this.ctx.stroke()
+		// Get the top of the cell
+		const cellTop = Math.floor(this.col * (this.cellHeight))
+		const cellLeft = Math.floor(this.row * (this.cellWidth))
 		
-			// Draw the winning message
-			this.ctx.font = '20px Arial'
-			this.ctx.textAlign = 'center'
-			this.ctx.fillStyle = '#43d637'
-			const winner = this.winner === pieceType.nought ? 'Noughts' : 'Crosses'
-			this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
-			setTimeout(() => {
-				this.clearBoard()
-				this.clickDisabled = true
-			}, 3000)
+		// Draw a circle in the centre of the cell
+		const centreX = cellTop + (this.cellWidth/2)
+		const centreY = cellLeft + (this.cellWidth/2)
+		if(this.col >= 0 && this.dims && this.row >= 0 && this.row < this.dims) {
+			if(!Game.board[this.row][this.col]) {
+				// Dynamically set the pieces by clickTurn(which technically is the pieceType of the piece)
+				Game.board[this.row][this.col] = new Piece(this.ctx, this.clickTurn)
+				if(this.clickTurn % 2 === 0) {
+					Game.board[this.row][this.col].drawAt(centreX, centreY, {rad: this.cellWidth/3})
+				} else {
+					Game.board[this.row][this.col].drawAt(centreX, centreY, {offset: this.cellWidth/3})
+				}
+				this.clickTurn = (this.clickTurn + 1) % 2
+			}
+			if(this.checkWin(this.row, this.col)) {
+
+				// print the winningPath array	
+				// Draw the winning line			
+				this.drawWinPath(this.winningPath)
+				// Draw the winning message
+				this.ctx.font = '20px Arial'
+				this.ctx.textAlign = 'center'
+				this.ctx.fillStyle = '#43d637'
+				const winner = this.winner === Game.board[this.row][this.col].getType() ? 'Noughts' : 'Crosses'
+				this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
+				setTimeout(() => {
+					this.clearBoard()
+					console.log('Board cleared')
+				}, 3000)
+			}
 		}
+	}
+
+
+	private drawWinPath(path: number[][]): void {
+		this.ctx.strokeStyle = '#2D47A0'
+		this.ctx.lineWidth = 3
+		this.ctx.beginPath()
+		path.forEach(([x, y]) => {
+			console.log(`x: ${x* this.cellWidth}, y: ${y * this.cellHeight}`)
+			this.ctx.moveTo((x * this.cellWidth), (y * this.cellHeight))
+			// this.ctx.moveTo((x * this.cellWidth) + this.cellWidth/2, (y * this.cellHeight) + this.cellHeight/2)
+			this.ctx.lineTo(((x + 1) * this.cellWidth), (y + 1) * this.cellHeight)
+		})
+		this.ctx.stroke()
 	}
 
 
@@ -97,7 +115,7 @@ export class Game {
 			this.ctx.lineTo(i * this.cellWidth, this.canvas.height)
 			this.ctx.stroke()
 		}
-
+		// this.ctx.save()
 	}
 	
 	// Check if the board is full
@@ -114,7 +132,7 @@ export class Game {
 		return isFull
 	}
 	
-	private handlePlayerInput(e: MouseEvent, gameState?: boolean) {
+	private handlePlayerInput(e: MouseEvent) {
 		// Get the mouse position
 		const [mouseX, mouseY] = [e.offsetX, e.offsetY]
 
@@ -122,41 +140,8 @@ export class Game {
 		const col = Math.floor(mouseX / (this.cellWidth))
 		const row = Math.floor(mouseY / (this.cellHeight))
 
-		// Get the top of the cell
-		const cellTop = Math.floor(col * (this.cellHeight))
-		const cellLeft = Math.floor(row * (this.cellWidth))
-
-		// Draw a circle in the centre of the cell
-		const centreX = cellTop + (this.cellWidth/2)
-		const centreY = cellLeft + (this.cellWidth/2)
-
-		if(gameState) {
-			// If the mouse is over a valid cell
-			if (col >= 0 && col < this.dims && row >= 0 && row < this.dims) {
-				// If the cell is empty
-				const gamePiece = new Piece(this.ctx, pieceType.nought)
-				const crossPiece = new Piece(this.ctx, pieceType.cross)
-				if (!Game.board[row][col]) {
-					// Place the piece on the board				
-					if(this.clickTurn % 2 === 0) {
-						Game.board[row][col] = gamePiece
-						Game.flags[row][col] = true
-						Game.board[row][col].drawAt(centreX, centreY, {rad: this.cellWidth/3})
-						pieceStack.push(Game.board[row][col])
-					}
-					else {
-						Game.board[row][col] = crossPiece
-						Game.flags[row][col] = true
-						Game.board[row][col].drawAt(centreX, centreY, {offset: this.cellWidth/3})
-						pieceStack.push(Game.board[row][col])
-					}
-					this.clickTurn = (this.clickTurn + 1) % 2
-				}
-			}
-		}
-		else if(gameState === false) {
-			console.log('game state is false')
-		}	
+		this.col = col
+		this.row = row
 	}
 
 
@@ -164,156 +149,116 @@ export class Game {
 	 * the method that checks if the game is won
 	 * @returns true if the game is won
 	 */
-	private checkWin(): boolean {
+	private checkWin(row: number, col: number): boolean {
 		let isWin = false
-		let numCrossPieces = 0
-		let numNoughtPieces = 0
-
-	
-
-		for (let i = 0; i < Game.board.length; i++) {
-
-			for (let j = 0; j < Game.board[i].length; j++) {
-				if (Game.board[i][j]) {
-
-					if (i === j && Game.board[i][j].getType() === pieceType.nought) {
-						numNoughtPieces++
-						this.winningPath[i] = [i, j]
-					}
-					else if (i === j && Game.board[i][j].getType() === pieceType.cross) {
-						numCrossPieces++
-					}
-					else if(Game.board[i][j].getType() === pieceType.nought) {
-						numNoughtPieces++
-						// ensure that the winning path is not adding a different piece
-						// to the winning path
-						if(this.winningPath[i][0] !== i || this.winningPath[i][1] !== j) {
-							this.winningPath[i] = null
-						}
-						this.winningPath[i] = [i, j]
-					}
-					else if(Game.board[i][j].getType() === pieceType.cross) {
-						numCrossPieces++
-						this.winningPath[i] = [i, j]
-
-					}
+		let winAxis = '' // the winning axis(row, column or diagonal)
+		// let numPieces = 0
+		let noughts = 0
+		let crosses = 0
+		
+		for (let i = 0; i < Game.board.length; i++) {			
+			if(Game.board[i][row]) {
+				const rowSet = new Set(Game.board[i].map(piece => piece.getType()))
+				if(rowSet.size === 1) {
+					winAxis = 'row'
+					console.log('Game won on(row):', i, row)
+					this.generateWinningPath(winAxis, row)
+					this.winner = Game.board[i][row].getType()
+					isWin = true
+				}
+			}
 
 
+			if(Game.board[col][i]) {
+				const colSet = new Set(Game.board[col].map(piece => piece.getType()))
+				if(colSet.size === 1) {
+					winAxis = 'col'
+					this.generateWinningPath(winAxis, i)
+					this.winner = Game.board[col][i].getType()
+					isWin = true
+				}
+			}
+
+			if(Game.board[i][i]) {
+				if(Game.board[i][i].getType() === 0) {
+					noughts++
+				}
+				else if(Game.board[i][i].getType() === 1) {
+					crosses++
+				}
+				if(noughts === this.dims || crosses === this.dims) {
+					winAxis = 'posdiag'
+					crosses = 0, noughts = 0
+					console.log('Game won on(posdiag):', i, i)
+					this.generateWinningPath(winAxis, i)
+					console.log(this.winningPath)
+					this.winner = Game.board[i][i].getType()
+					isWin = true
+				}
+			}
+			else if(Game.board[i][Game.board.length - 1 - i]) {
+				// Checking anti-diagonal
+				if(Game.board[i][Game.board.length - 1 - i].getType() === 1) {
+					crosses++
+				}
+				else if(Game.board[i][Game.board.length - 1 - i].getType() === 0) {
+					noughts++
+				}
+				if(noughts === this.dims || crosses === this.dims)
+				{
+					winAxis = 'antidiag'
+					console.log('Game won on(antidiag):', i, (Game.board.length - 1 - i))
+					this.generateWinningPath(winAxis, Game.board.length - 1 - i)
+					this.winner = Game.board[i][Game.board.length - 1 - i].getType()
+					isWin = true
 				}
 			}
 		}
 
-		if (numNoughtPieces === 3) {
-			const passWin = this.winningPath.every(val => Game.board[val[0]][val[1]].getType() === pieceType.nought)
-			this.winner = pieceType.nought
-			console.log(`PassWin is: ${passWin}`)
-			isWin = true
-		}
-		else if (numCrossPieces === 3) {
-			this.winner = pieceType.cross
-			isWin = true
-			this.gameOver = true
-		}
 		return isWin
 	}
 
 	/**
-	 * This method checks rows for a win
-	 * @param row the row to check
-	 * @param p the piece to be checked
-	 * @returns true if the piece is in the winning path
+	 * Generates the winning path based on the winning axis
+	 * @param winAxis the winning axis
+	 * @param idx the index of the winning piece
 	 */
-	private checkRow(row: number, p: Piece) {
-		let horizontal = false
-		const valInMat = p.getType()
-		/* for (let i = 0; i < Game.board.length; ++i) {
-			for(let j = 0; j < Game.board[i].length; ++j) {
-				if(Game.board[i][j].getType() === valInMat)
-					horizontal = true
-			}
-		} */
-		for(let i = 0; i < Game.board.length; ++i) {
-			if(Game.board[row][i].getType() === valInMat)
-				horizontal = true
-		}
-
-		return horizontal
-	}
-
-	/**
-	 * This method checks columns for a win
-	 * @param p the piece to be checked
-	 * @returns true if this piece is in the winning path
-	 */
-	private checkCol(col: number, p: Piece) {
-		let vertical = false
-		const valInMat = p.getType()
-		let cols: Piece[] = []
-
-		for(let i = 0; i < Game.board.length; ++i) {
-			cols = Game.board.map(c => c[i])
-		}
-
-		for(let i = 0; i < Game.board.length; ++i) {
-			if(Game.board[i][col].getType() === valInMat)
-				vertical = true
-		}
-		
-		vertical = cols.every(p => p.getType() === valInMat)
-		return vertical
-	}
-
-	private checkDiagonal(row: number, col: number, p: Piece) {
-		let isDiagonal = false
-		const valInMat = p.getType()
-		for (let i = 0; i < Game.board.length; ++i) {
-			for(let j = 0; j < Game.board[i].length; ++j) {
-				// Checking top right -> bottom right diagonal 
-				if(i == j && valInMat === Game.board[i][j].getType()) {
-					this.winningPath[i] = [i, j]
-					isDiagonal = true
-				}
-				// Checking top left -> bottom right diagonal
-				else if(i + j === Game.board.length - 1 && valInMat === Game.board[i][j].getType()) {
-					this.winningPath[i] = [i, j]
-					isDiagonal = true
-				}
+	private generateWinningPath(winAxis: string, idx?: number) {
+		if(winAxis === 'row') {
+			for(let i = 0; i < this.dims; i++) {
+				this.winningPath[i] = [i, idx]
 			}
 		}
-		return isDiagonal
+		else if(winAxis === 'column') {
+			for(let i = 0; i < this.dims; i++) {
+				this.winningPath[i] = [idx, i]
+			}
+		}
+		else if(winAxis === 'posdiag') {
+			for(let i = 0; i < this.dims; i++) {
+				this.winningPath[i] = [i, i]
+			}
+		}
+		else if(winAxis === 'antidiag') {
+			for(let i = 0; i < this.dims; i++) {
+				this.winningPath[i] = [i, this.dims - 1 - i]
+			}
+		}
 	}
+
 
 	private clearBoard() {
 		this.clickTurn = 0
-
-		for (let i = 0; i < this.dims; i++) {
-			for (let j = 0; j < this.dims; j++) {
-				Game.board[i][j] = null
-				Game.flags[i][j] = false
-				this.ctx.clearRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight)
-				this.ctx.fillStyle = '#000'
-				this.ctx.fillRect(i * this.cellWidth, j * this.cellHeight, this.cellWidth, this.cellHeight)
-				this.ctx.strokeStyle = '#fff'
-				this.ctx.lineWidth = 1.3
-				
-				this.ctx.beginPath()
-				this.ctx.moveTo(0, i * this.cellHeight)
-				this.ctx.lineTo(this.canvas.width, i * this.cellHeight)
-				this.ctx.stroke()
-				
-				this.ctx.beginPath()
-				this.ctx.moveTo(i * this.cellWidth, 0)
-				this.ctx.lineTo(i * this.cellWidth, this.canvas.height)
-				this.ctx.stroke()
-				
-			}
-		}
+		Game.board.forEach(vals => vals.forEach((p, idx, arr) => arr[idx] = null))
 	}
 
 	run(): void {
-		requestAnimationFrame(this.run.bind(this))
-		this.render()		
+		const reqId = requestAnimationFrame(this.run.bind(this))
+		this.render()
 		this.update()
+		if(this.winner !== null) {
+			cancelAnimationFrame(reqId)
+		}
 	}
 
 }

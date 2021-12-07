@@ -2,12 +2,12 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' data: fonts.gstatic.com; style "> -->
     <title>Hello World!</title>
-    <!-- <link rel="stylesheet" href="./styles/game.css"> -->
+
   </head>
   <body>
     <h1>Tic Tac Toe!</h1>
-    <!-- <button id="btn">Enter Your Name</button> -->
     <main id="main">
       <aside id="info">
         <h2 class="instructions">Instructions</h2>
@@ -18,6 +18,18 @@
         <p>
           To make a move, click on an empty square.
         </p>
+        <div class="choice">
+          Choose your piece:
+          <div class="x">
+            X
+          </div>
+          <div class="0">
+            O
+          </div>
+        </div>
+        <div class="btn">
+          Toggle Theme
+        </div>
       </aside>
       <canvas id="canvas" width="500" height="500"></canvas>
     </main>
