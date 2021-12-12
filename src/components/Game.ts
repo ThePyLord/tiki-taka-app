@@ -1,8 +1,6 @@
 import Piece, { pieceType } from './Piece'
-import { Stack } from '../../lib/Stack'
-// import { SoundsOfTiki } from '../../lib/Music'
+import { SoundsOfTiki } from '../../lib/Music'
 
-const pieceStack = new Stack<Piece>()
 
 // Create a game object that contains all the game logic
 export class Game {
@@ -15,7 +13,7 @@ export class Game {
 	private cellWidth: number
 	private cellHeight: number
 	private winner: pieceType | null = null
-	static board: Piece[][] | null
+	static board: Piece[][] | null[][]
 	private col: number
 	private row: number
 
@@ -33,7 +31,8 @@ export class Game {
 		this.cellWidth = Math.floor(this.canvas.width / this.dims)
 		this.cellHeight = Math.floor(this.canvas.height / this.dims)
 
-		ctx.fillStyle = '#000'
+		this.ctx.fillStyle = '#000'
+
 		ctx.fillRect(0, 0, canvas.width, canvas.height)
 		Game.board = new Array(this.dims)
 		this.winningPath = new Array(Game.board.length)
@@ -42,6 +41,7 @@ export class Game {
 			Game.board[i] = new Array(this.dims)
 			this.winningPath[i] = new Array(this.dims-1)
 		}
+		console.log(Game.board)
 	}
 
 	private update(): void {
@@ -64,20 +64,22 @@ export class Game {
 				this.clickTurn = (this.clickTurn + 1) % 2
 			}
 			if(this.checkWin(this.row, this.col)) {
-
+				const sfx = new SoundsOfTiki()
+				sfx.play()
 				// print the winningPath array	
-				// Draw the winning line			
-				this.drawWinPath(this.winningPath)
+				// Draw the winning line		
+				console.log(Game.board.map(row => row.map(cell => cell?.getType())))
 				// Draw the winning message
 				this.ctx.font = '20px Arial'
 				this.ctx.textAlign = 'center'
-				this.ctx.fillStyle = '#43d637'
-				const winner = this.winner === Game.board[this.row][this.col].getType() ? 'Noughts' : 'Crosses'
+				this.ctx.fillStyle = '#591b92'
+				const winner = this.winner === pieceType.nought ? 'Noughts' : 'Crosses'
 				this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
 				setTimeout(() => {
 					this.clearBoard()
-					console.log('Board cleared')
+					console.log('Supposedly cleared board:', Game.board)
 				}, 3000)
+				sfx.stop()
 			}
 		}
 	}
@@ -100,7 +102,7 @@ export class Game {
 	/**
 	 * Renders the game board on the canvas
 	 */
-	private render(): void {
+	private render() {
 		// Draw the board separation lines
 		this.ctx.strokeStyle = '#fff'
 		this.ctx.lineWidth = 1.3
@@ -115,7 +117,7 @@ export class Game {
 			this.ctx.lineTo(i * this.cellWidth, this.canvas.height)
 			this.ctx.stroke()
 		}
-		// this.ctx.save()
+		// Save the current state of the canvas
 	}
 	
 	// Check if the board is full
@@ -142,6 +144,7 @@ export class Game {
 
 		this.col = col
 		this.row = row
+		console.log(`User clicked on: [${row}, ${col}]`)
 	}
 
 
@@ -149,16 +152,15 @@ export class Game {
 	 * the method that checks if the game is won
 	 * @returns true if the game is won
 	 */
-	private checkWin(row: number, col: number): boolean {
+	private checkWin(row: number, col: number){
 		let isWin = false
 		let winAxis = '' // the winning axis(row, column or diagonal)
-		// let numPieces = 0
 		let noughts = 0
 		let crosses = 0
 		
 		for (let i = 0; i < Game.board.length; i++) {			
 			if(Game.board[i][row]) {
-				const rowSet = new Set(Game.board[i].map(piece => piece.getType()))
+				const rowSet = new Set(Game.board[i].map(piece => piece?.getType()))
 				if(rowSet.size === 1) {
 					winAxis = 'row'
 					console.log('Game won on(row):', i, row)
@@ -168,14 +170,16 @@ export class Game {
 				}
 			}
 
-
 			if(Game.board[col][i]) {
-				const colSet = new Set(Game.board[col].map(piece => piece.getType()))
-				if(colSet.size === 1) {
+
+				const colSet = Game.board.every(piece => piece[col]?.getType())
+				// console.log(object)
+				if(colSet) {
 					winAxis = 'col'
 					this.generateWinningPath(winAxis, i)
+					console.log('Game won on(col): ', col, i)
 					this.winner = Game.board[col][i].getType()
-					isWin = true
+					isWin = true	
 				}
 			}
 
@@ -246,10 +250,31 @@ export class Game {
 		}
 	}
 
-
+	/**
+	 * Clears the game board
+	 * @todo: clear the board and redraw the board
+	 * @todo: clear the board from the winningPath
+	 */
 	private clearBoard() {
+		// THIS ISN'T THE MOST EFFICIENT WAY TO DO THIS
+		// but it works for now
 		this.clickTurn = 0
-		Game.board.forEach(vals => vals.forEach((p, idx, arr) => arr[idx] = null))
+		this.winningPath = []
+		this.ctx.strokeStyle = '#fff'
+		this.ctx.fillStyle = '#000'
+		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		for(let i = 0; i < this.dims; i++) {
+			this.ctx.beginPath()
+			this.ctx.moveTo(0, i * this.cellHeight)
+			this.ctx.lineTo(this.dims * this.cellWidth, i * this.cellHeight)
+			this.ctx.stroke()
+
+			this.ctx.beginPath()
+			this.ctx.moveTo(i * this.cellWidth, 0)
+			this.ctx.lineTo(i * this.cellWidth, this.dims * this.cellHeight)
+			this.ctx.stroke()
+		}
+		Game.board.forEach(pieces => pieces.fill(null))
 	}
 
 	run(): void {

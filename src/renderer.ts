@@ -25,7 +25,6 @@
  *  });
  * ```
  */
-// import './index.css'
 import './styles/game.css';
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
@@ -38,12 +37,14 @@ import { Game } from './components/Game'
 // needed in the renderer process.
 // window.api.createWin()
 
+
+const appTheme = localStorage.getItem('theme')
 const choices = document.querySelector('.choice').children as HTMLCollectionOf<HTMLElement>
 for (let i = 0; i < choices.length; i++) {
 	const element = choices[i];
 	element.addEventListener('click', function()  {
-		this.classList.toggle('active')
-		if(this.classList.contains('active')) {
+		this.classList.toggle('clicked')
+		if(this.classList.contains('clicked')) {
 			this.style.color = 'rgb(84, 118, 192)'
 			console.log(this.classList)
 		}
@@ -56,7 +57,9 @@ for (let i = 0; i < choices.length; i++) {
 document.querySelector('.btn').addEventListener('click', toggleTheme)
 
 // Toggle theme
+// TODO: #1 Persist theme between sessions
 function toggleTheme() {
+
 	document.body.classList.toggle('dark-mode')
 	this.classList.toggle('active')
 	if(this.classList.contains('active')) {
@@ -65,6 +68,7 @@ function toggleTheme() {
 	else {
 		this.style.color = '#000'
 	}
+	console.log(appTheme)
 }
 
 

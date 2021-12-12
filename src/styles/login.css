@@ -33,11 +33,9 @@ body {
 .nav-link {
 	-webkit-app-region: no-drag;
 	padding: 0.4rem;
-	cursor: pointer;
+	/* cursor: pointer; */
 	font-size: 1.3rem;
 }
-
-
 
 
 .nav-link:hover {
@@ -60,6 +58,10 @@ body {
 	justify-content: center;
 	flex-wrap: wrap;
 	gap: 1rem;
+}
+
+.main:hover {
+	background-color: var(--bright-beige);
 }
 
 .sub {

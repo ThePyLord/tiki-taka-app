@@ -72,6 +72,7 @@ ipcMain.handle('user-init', async () => {
       resizable: false,
       autoHideMenuBar: true,
       frame: false,
+      alwaysOnTop: true,
       webPreferences: {
         preload: LOGIN_WINDOW_PRELOAD_WEBPACK_ENTRY
       }
