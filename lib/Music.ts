@@ -1,4 +1,4 @@
-import checkout from '../assets/audio/cha-ching.mp3';
+import checkout from '../assets/audio/lesgooo.mp3';
 
 // TO GET **CUSTOM** AUDIO TO WORK
 // 1. Create a type declaration for the audio file

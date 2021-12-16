@@ -16,7 +16,7 @@ export class Game {
 	static board: Piece[][] | null[][]
 	private col: number
 	private row: number
-
+	private reqId: number
 	/**
 	 * creates a new Game
 	 * @param canvas The canvas to draw the board on
@@ -26,7 +26,7 @@ export class Game {
 	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, dims?: number) {
 		this.canvas = canvas
 		this.canvas.addEventListener('click', this.handlePlayerInput.bind(this))
-		this.dims = dims || 3
+		this.dims = dims > 3 ? dims : 3
 		this.ctx = ctx
 		this.cellWidth = Math.floor(this.canvas.width / this.dims)
 		this.cellHeight = Math.floor(this.canvas.height / this.dims)
@@ -54,50 +54,123 @@ export class Game {
 		const centreY = cellLeft + (this.cellWidth/2)
 		if(this.col >= 0 && this.dims && this.row >= 0 && this.row < this.dims) {
 			if(!Game.board[this.row][this.col]) {
+
 				// Dynamically set the pieces by clickTurn(which technically is the pieceType of the piece)
-				Game.board[this.row][this.col] = new Piece(this.ctx, this.clickTurn)
+				const type: pieceType = this.clickTurn + 1
+				Game.board[this.row][this.col] = new Piece(this.ctx, type)
 				if(this.clickTurn % 2 === 0) {
 					Game.board[this.row][this.col].drawAt(centreX, centreY, {rad: this.cellWidth/3})
 				} else {
 					Game.board[this.row][this.col].drawAt(centreX, centreY, {offset: this.cellWidth/3})
 				}
 				this.clickTurn = (this.clickTurn + 1) % 2
+				setTimeout(() => {
+					console.log('Board at click:', Game.board.map(row => row.map(cell => cell?.getType())))
+					console.log('The clickTurn is:', this.clickTurn)
+				}, 100)
 			}
 			if(this.checkWin(this.row, this.col)) {
 				const sfx = new SoundsOfTiki()
 				sfx.play()
-				// print the winningPath array	
-				// Draw the winning line		
-				console.log(Game.board.map(row => row.map(cell => cell?.getType())))
+
+				// console.log(Game.board.map(row => row.map(cell => cell?.getType())))
 				// Draw the winning message
 				this.ctx.font = '20px Arial'
 				this.ctx.textAlign = 'center'
-				this.ctx.fillStyle = '#591b92'
-				const winner = this.winner === pieceType.nought ? 'Noughts' : 'Crosses'
+				this.ctx.fillStyle = '#599b92'
+				console.log(this.winningPath)
+				this.drawWinPath(this.winningPath)
+				const winner = this.winner === 1 ? 'Noughts' : 'Crosses'
 				this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
 				setTimeout(() => {
 					this.clearBoard()
+					this.winner = null
+					console.log('Supposedly cleared board:', Game.board, '\n The winner is: ', this.winner)
+				}, 5000)
+
+				// sfx.stop()
+			}
+			else if(this.isBoardFull() && !this.checkWin(this.row, this.col)) {
+				this.ctx.font = '20px Arial'
+				this.ctx.textAlign = 'center'
+				this.ctx.fillStyle = '#599b92'
+				this.ctx.fillText('Draw!', this.canvas.width/2, this.canvas.height/2)
+				setTimeout(() => {
+					this.clearBoard()
 					console.log('Supposedly cleared board:', Game.board)
-				}, 3000)
-				sfx.stop()
+				}, 900)
+				console.log('Game board:', Game.board)
 			}
 		}
 	}
 
-
+	/**
+	 * draws a line along the "winning path"
+	 * @param path The path that the line will be drawn along
+	 */
 	private drawWinPath(path: number[][]): void {
 		this.ctx.strokeStyle = '#2D47A0'
 		this.ctx.lineWidth = 3
+		// Check if the path is horizontal or vertical
+		
 		this.ctx.beginPath()
-		path.forEach(([x, y]) => {
-			console.log(`x: ${x* this.cellWidth}, y: ${y * this.cellHeight}`)
-			this.ctx.moveTo((x * this.cellWidth), (y * this.cellHeight))
-			// this.ctx.moveTo((x * this.cellWidth) + this.cellWidth/2, (y * this.cellHeight) + this.cellHeight/2)
-			this.ctx.lineTo(((x + 1) * this.cellWidth), (y + 1) * this.cellHeight)
-		})
+		// Time complexity: O(1) 😈
+		// Horizontal
+		if(path[0][1] === path[1][1]) {
+			this.ctx.moveTo(
+				(this.cellWidth/2),  
+				(path[path.length-1][1] * this.cellHeight) + (this.cellHeight/2)
+			)
+			this.ctx.lineTo(
+				(path[path.length - 1][0] * this.cellWidth) + (this.cellWidth/2),
+				(path[path.length-1][1] * this.cellHeight) + (this.cellHeight/2)
+			)
+		}
+		// Vertical
+		else if(path[0][0] === path[1][0]) {
+			this.ctx.moveTo(
+				(path[0][0] * this.cellWidth) + this.cellWidth/2, // x
+				(path[0][1] * this.cellHeight) + this.cellHeight/2 // y
+			)
+			this.ctx.lineTo(
+				(path[path.length - 1][0] * this.cellWidth) + this.cellWidth/2, 
+				(path[path.length - 1][1] * this.cellHeight) + this.cellHeight/2
+			)
+			// CHECKING NUMERICAL VALUES
+			console.log('Line starts from:', (path[0][0] * this.cellWidth) + this.cellWidth/2, Math.floor(path[0][1] * this.cellHeight) * this.cellHeight/2)
+			console.log('To:', Math.floor(path[path.length - 1][0] * this.cellWidth) + this.cellWidth/2, Math.floor(path[path.length - 1][1] * this.cellWidth) + this.cellWidth/2)
+		}
+		else {
+			// Convoluted antidiagonal check
+			// Basically checking if the last item in the path matches the reverse of the first
+			// e.g [0, 2] == [2, 0](in reverse)
+			if(path[path.length - 1]
+				.map(item => item)
+				.reverse()
+				.every((val, idx) => val === path[0][idx]))
+			{
+				console.log('ANTI-DIAG WIN!')
+				// TODO: Start writing the logic to draw the lines for anti-diagonal wins
+				path.forEach(([x, y], idx) => {
+					if(idx !== path.length - 1) {
+						this.ctx.moveTo(x * this.cellWidth + (this.cellWidth/2), y * this.cellHeight + (this.cellHeight/2) )
+						this.ctx.lineTo((x + 1) * this.cellWidth + (this.cellWidth/2), (y-1) * this.cellHeight + this.cellHeight/2)
+					}
+				})	
+			}
+			else {
+				// posdiag
+				path.forEach(([x, y], idx) => {
+					if(idx !== path.length - 1) {
+						this.ctx.moveTo(x * this.cellWidth + (this.cellWidth/2), y * this.cellHeight + this.cellHeight/2)
+						this.ctx.lineTo((x+1) * this.cellWidth + (this.cellWidth/2), (y+1) * this.cellHeight + this.cellHeight/2)
+					}
+				})
+			}
+		}
 		this.ctx.stroke()
 	}
-
+	
 
 	/**
 	 * Renders the game board on the canvas
@@ -130,7 +203,7 @@ export class Game {
 				}
 			}
 		}
-		Game.board = null
+
 		return isFull
 	}
 	
@@ -152,7 +225,7 @@ export class Game {
 	 * the method that checks if the game is won
 	 * @returns true if the game is won
 	 */
-	private checkWin(row: number, col: number){
+	private checkWin(row: number, col: number) {
 		let isWin = false
 		let winAxis = '' // the winning axis(row, column or diagonal)
 		let noughts = 0
@@ -171,23 +244,22 @@ export class Game {
 			}
 
 			if(Game.board[col][i]) {
-
-				const colSet = Game.board.every(piece => piece[col]?.getType())
-				// console.log(object)
-				if(colSet) {
+				const colSet = new Set(Game.board.map(piece => piece[col]?.getType()))
+				if(colSet.size == 1) {
 					winAxis = 'col'
 					this.generateWinningPath(winAxis, i)
 					console.log('Game won on(col): ', col, i)
 					this.winner = Game.board[col][i].getType()
+					console.log('The winningPath is: ', this.winningPath)
 					isWin = true	
 				}
 			}
 
 			if(Game.board[i][i]) {
-				if(Game.board[i][i].getType() === 0) {
+				if(Game.board[i][i].getType() === 1) {
 					noughts++
 				}
-				else if(Game.board[i][i].getType() === 1) {
+				else if(Game.board[i][i].getType() === 2) {
 					crosses++
 				}
 				if(noughts === this.dims || crosses === this.dims) {
@@ -195,7 +267,7 @@ export class Game {
 					crosses = 0, noughts = 0
 					console.log('Game won on(posdiag):', i, i)
 					this.generateWinningPath(winAxis, i)
-					console.log(this.winningPath)
+					console.log('posdiag:',this.winningPath)
 					this.winner = Game.board[i][i].getType()
 					isWin = true
 				}
@@ -203,10 +275,10 @@ export class Game {
 			else if(Game.board[i][Game.board.length - 1 - i]) {
 				// Checking anti-diagonal
 				if(Game.board[i][Game.board.length - 1 - i].getType() === 1) {
-					crosses++
-				}
-				else if(Game.board[i][Game.board.length - 1 - i].getType() === 0) {
 					noughts++
+				}
+				else if(Game.board[i][Game.board.length - 1 - i].getType() === 2) {
+					crosses++
 				}
 				if(noughts === this.dims || crosses === this.dims)
 				{
@@ -233,7 +305,7 @@ export class Game {
 				this.winningPath[i] = [i, idx]
 			}
 		}
-		else if(winAxis === 'column') {
+		else if(winAxis === 'col') {
 			for(let i = 0; i < this.dims; i++) {
 				this.winningPath[i] = [idx, i]
 			}
@@ -263,26 +335,42 @@ export class Game {
 		this.ctx.strokeStyle = '#fff'
 		this.ctx.fillStyle = '#000'
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		// const filled = Game.board.filter(row => row.filter(piece => piece !== null))
 		for(let i = 0; i < this.dims; i++) {
+			for(let j = 0; j < this.dims; j++) {
+				// Use the clear method of the piece to clear out the board
+				Game.board[i][j]?.clear(i, j, this.cellWidth, this.cellHeight)
+			}
+			Game.board[i] = Array(this.dims)
 			this.ctx.beginPath()
 			this.ctx.moveTo(0, i * this.cellHeight)
 			this.ctx.lineTo(this.dims * this.cellWidth, i * this.cellHeight)
 			this.ctx.stroke()
-
+			
 			this.ctx.beginPath()
 			this.ctx.moveTo(i * this.cellWidth, 0)
 			this.ctx.lineTo(i * this.cellWidth, this.dims * this.cellHeight)
 			this.ctx.stroke()
 		}
-		Game.board.forEach(pieces => pieces.fill(null))
+
 	}
 
 	run(): void {
-		const reqId = requestAnimationFrame(this.run.bind(this))
+		// Likely the source of the reset issue
+		// this.reqId = requestAnimationFrame(this.run.bind(this))
 		this.render()
-		this.update()
+		// this.update()
 		if(this.winner !== null) {
-			cancelAnimationFrame(reqId)
+			cancelAnimationFrame(this.reqId)
+			// setTimeout(() => {	
+			// }, 1000)
+			// setTimeout(() => {
+			// 	this.reqId = requestAnimationFrame(this.run.bind(this))
+			// }, 2000)
+		}
+		else {		
+			this.reqId = requestAnimationFrame(this.run.bind(this))
+			this.update()
 		}
 	}
 

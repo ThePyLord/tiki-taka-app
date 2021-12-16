@@ -1,7 +1,7 @@
 // Create a class piece that can be used to draw a nought or cross 
 // on the canvas.
 export enum pieceType {
-	nought,
+	nought=1,
 	cross
 }
 
@@ -30,7 +30,8 @@ export default class Piece {
 			this.ctx.beginPath()
 			this.ctx.arc(x, y, options.rad, 0, 2 * Math.PI)
 			this.ctx.stroke()
-		} else {
+		} 
+		else if(this.type == pieceType.cross) {
 			this.ctx.strokeStyle = this.crossColor
 			this.ctx.beginPath()
 			this.ctx.moveTo(x - options.offset, y - options.offset)
@@ -46,6 +47,10 @@ export default class Piece {
 
 
 	clear(x: number, y: number, width: number, height: number): void {
+		// this.ctx.fillStyle = '#000'
 		this.ctx.clearRect(x, y, width, height)
+		this.ctx.fillRect(x, y, width - 1.3, height - 1.3)
+		console.log('Clearing:', x, y, width, height)
+		this.type = null
 	}
 }
