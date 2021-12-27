@@ -50,7 +50,6 @@ export default class Piece {
 		// this.ctx.fillStyle = '#000'
 		this.ctx.clearRect(x, y, width, height)
 		this.ctx.fillRect(x, y, width - 1.3, height - 1.3)
-		console.log('Clearing:', x, y, width, height)
 		this.type = null
 	}
 }

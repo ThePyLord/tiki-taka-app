@@ -77,7 +77,6 @@ ipcMain.handle('user-init', async () => {
         preload: LOGIN_WINDOW_PRELOAD_WEBPACK_ENTRY
       }
     })
-    // popoutWindow.webContents.openDevTools({mode:'undocked'})
     popoutWindow.loadURL(LOGIN_WINDOW_WEBPACK_ENTRY)
 
     popoutWindow.on('close', () => {

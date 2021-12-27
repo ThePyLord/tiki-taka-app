@@ -1,4 +1,5 @@
 import checkout from '../assets/audio/lesgooo.mp3';
+import wasted from '../assets/audio/wasted.mp3'
 
 // TO GET **CUSTOM** AUDIO TO WORK
 // 1. Create a type declaration for the audio file
@@ -11,7 +12,7 @@ export class SoundsOfTiki {
 	private audioSource: AudioBufferSourceNode;
 	private osc: OscillatorNode
 
-	constructor() {
+	constructor(private sound: any) {
 		this.audioCtx = new AudioContext()
 		// this.audioBuffer = this.audioCtx.createBuffer(1, 30, 22050)
 		// for this to work audioSource has to be an AudioNode
@@ -24,9 +25,9 @@ export class SoundsOfTiki {
 		this.osc.frequency.exponentialRampToValueAtTime(600, this.audioCtx.currentTime +1)
 		const gain = this.audioCtx.createGain()
 		// gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.9)
-		gain.gain.linearRampToValueAtTime(0.5, this.audioCtx.currentTime + 0.9)
+		gain.gain.linearRampToValueAtTime(.5, this.audioCtx.currentTime + 0.9)
 		// Load the sound from this url: `https://freesound.org/data/previews/91/91924_634166-lq.mp3`
-		fetch(checkout)
+		fetch(sound)
 			.then(response => response.arrayBuffer())
 			.then(arrayBuffer => this.audioCtx.decodeAudioData(arrayBuffer))
 			.then(audioBuffer => {

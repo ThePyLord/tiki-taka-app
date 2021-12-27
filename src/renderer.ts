@@ -26,7 +26,7 @@
  * ```
  */
 import './styles/game.css';
-
+// import './styles/main.scss' // Sass doesn't work yet
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
 import { Game } from './components/Game';
 // This file is required by the index.html file and will
@@ -38,19 +38,6 @@ import { Game } from './components/Game';
 // window.api.createWin()
 
 
-window.onload = () => {
-	const appTheme = localStorage.getItem('theme')
-	if(appTheme === 'dark') {
-		document.body.classList.add('dark-mode')
-		document.querySelector('.btn').classList.add('active')
-	}
-	else if(appTheme === 'light') {
-		document.body.classList.remove('dark-mode')
-		const btn = document.querySelector('.btn') as HTMLElement
-		btn.classList.remove('active') 
-		btn.style.color = '#000'
-	}
-}
 const choices = document.querySelector('.choice').children as HTMLCollectionOf<HTMLElement>
 for (let i = 0; i < choices.length; i++) {
 	const element = choices[i];
@@ -65,8 +52,20 @@ for (let i = 0; i < choices.length; i++) {
 		}
 	})
 }
+const btn = document.querySelector('.btn') as HTMLElement
+window.onload = () => {
+	const appTheme = localStorage.getItem('theme')
+	if(appTheme === 'dark') {
+		document.body.classList.add('dark-mode')
+	}
+	else if(appTheme === 'light') {
+		document.body.classList.remove('dark-mode')
+		btn.classList.remove('active') 
+		btn.style.color = '#000'
+	}
+}
 
-document.querySelector('.btn').addEventListener('click', toggleTheme)
+btn.addEventListener('click', toggleTheme)
 
 // Toggle theme
 function toggleTheme() {
