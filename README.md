@@ -10,5 +10,5 @@ IN PROGRESS:
  - Checking if the game is won
  - 
 
-VULNERABILITIES:
- - trim-newlines module(high severity)
+HOW TO RUN:
+ - After cloning/forking the repo, you can run `npm start` to run the application.
