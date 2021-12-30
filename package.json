@@ -54,7 +54,18 @@
                 {
                   "html": "./src/index.html",
                   "js": "./src/renderer.ts",
-                  "name": "main_window"
+                  "name": "main_window",
+                  "preload": {
+                    "js": "./src/scripts/preload.ts"
+                  }
+                },
+                {
+                  "html": "./src/init.html",
+                  "js": "./src/app/login.ts",
+                  "name": "login_window",
+                  "preload": {
+                    "js": "./src/scripts/preload.ts"
+                  }
                 }
               ]
             }
@@ -79,6 +90,7 @@
     "electron": "16.0.2",
     "eslint": "^7.32.0",
     "eslint-plugin-import": "^2.25.3",
+    "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.4.2",
     "jest": "^27.4.0",
     "node-loader": "^2.0.0",
