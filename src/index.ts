@@ -26,6 +26,8 @@ const createWindow = (): void => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
     },
   })
+  const sesh = mainWindow.webContents.session
+  
   // Disable main window resizing
   mainWindow.setResizable(false)
 
