@@ -73,7 +73,6 @@ export class Game {
 				}, 100)
 			}
 			if(this.checkWin(this.row, this.col)) {
-				// const sfx = new SoundsOfTiki(wasted)
 				this.sfx = new SoundsOfTiki(wasted)
 				this.sfx.play()
 				running = false
@@ -85,14 +84,15 @@ export class Game {
 				const winner = this.winner === 1 ? 'Noughts' : 'Crosses'
 				console.log('The winner:',winner)
 				this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
-				this.gameOver()
+				// this.gameOver()
 				setTimeout(() => {
 					this.clearBoard()
 					this.winner = null
-					console.log('Supposedly cleared board:', Game.board, '\nThe winner is: ', this.winner)
-					console.log('Piece still exists:', Game.board[this.row][this.col])
+					console.log('Supposedly cleared board:', Game.board, '\nThe winner is: ', this.winner)	
 				}, 3000)
+				this.clickTurn = 0
 				// sfx.stop()
+
 			}
 			else if(this.isBoardFull() && !this.checkWin(this.row, this.col)) {
 				running = false
@@ -225,7 +225,7 @@ export class Game {
 
 		this.col = col
 		this.row = row
-		console.log(`User clicked on: [${row}, ${col}]`)
+
 		this.clickTurn = (this.clickTurn + 1) % 2
 	}
 
@@ -315,17 +315,17 @@ export class Game {
 						
 	/**
 	 * Clears the game board
-	 * @todo: clear the board and redraw the board
 	 */
 	private clearBoard() {
-		this.clickTurn = 0
+		// this.clickTurn = 0
+		// this.update()
+		this.row = -1, this.col = -1
 		this.winningPath = []
 		this.ctx.strokeStyle = '#fff'
 		this.ctx.fillStyle = '#000'
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
 		for(let i = 0; i < this.dims; i++) {
-	
 			Game.board[i] = new Array(this.dims).fill(null)
 			this.ctx.beginPath()
 			this.ctx.moveTo(0, i * this.cellHeight)
@@ -340,7 +340,9 @@ export class Game {
 			
 	}
 
-
+	/**
+	 * @todo Implement a proper gameOver method that will be used for the game.
+	 */
 	private gameOver() {
 		this.clickTurn = null
 	}
@@ -353,7 +355,7 @@ export class Game {
 			setTimeout(() => {
 				this.reqId = requestAnimationFrame(this.run.bind(this))
 				running = true
-				console.log('Piece still exists:', Game.board[this.row][this.col])
+				// console.log('Piece still exists:', Game.board[this.row][this.col])
 			}, 5000)
 		} else {
 			this.reqId = requestAnimationFrame(this.run.bind(this))
