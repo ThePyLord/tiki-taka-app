@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 // Create a class piece that can be used to draw a nought or cross 
 // on the canvas.
 export enum pieceType {
@@ -19,7 +20,7 @@ export default class Piece {
 		this.ctx.lineWidth = this.lineWidth;
 	}
 
-	getType(): pieceType {
+	getType() {
 		return this.type;
 	}
 
@@ -49,7 +50,7 @@ export default class Piece {
 	clear(x: number, y: number, width: number, height: number): void {
 		// this.ctx.fillStyle = '#000'
 		this.ctx.clearRect(x, y, width, height)
-		this.ctx.fillRect(x, y, width - 1.3, height - 1.3)
+		// this.ctx.fillRect(x, y, width - 1.3, height - 1.3)
 		this.type = null
 	}
 }

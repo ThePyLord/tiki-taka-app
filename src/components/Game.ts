@@ -1,6 +1,7 @@
 import Piece, { pieceType } from './Piece'
 import { SoundsOfTiki } from '../../lib/Music'
-import wasted from '../../assets/audio/wasted.mp3'
+import wasted from '../../assets/audio/lesgooo.mp3'
+import draw from '../../assets/audio/draw.mp3'
 
 let running = true
 // Create a game object that contains all the game logic
@@ -10,13 +11,14 @@ export class Game {
 	private readonly dims: number
 	private winningPath: number[][]
 
-	private clickTurn = 0
+	private clickTurn: number
 	private cellWidth: number
 	private cellHeight: number
 	private winner: pieceType | null = null
 	static board: Piece[][] | null[][]
 	private col: number; row: number
 	private reqId: number
+	private sfx: SoundsOfTiki
 	/**
 	 * creates a new Game
 	 * @param canvas The canvas to draw the board on
@@ -25,13 +27,12 @@ export class Game {
 	 */
 	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, dims?: number) {
 		this.canvas = canvas
-		// this.canvas.onclick = this.handlePlayerInput.bind(this.canvas)
 		this.canvas.addEventListener('click', this.handlePlayerInput.bind(this))
 		this.dims = dims > 3 ? dims : 3
 		this.ctx = ctx
 		this.cellWidth = Math.floor(this.canvas.width / this.dims)
 		this.cellHeight = Math.floor(this.canvas.height / this.dims)
-
+		this.clickTurn = 0
 		this.ctx.fillStyle = '#000'
 
 		ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -39,7 +40,7 @@ export class Game {
 		this.winningPath = new Array(Game.board.length)
 		// Initialize the board and flags
 		for (let i = 0; i < this.dims; i++) {
-			Game.board[i] = new Array(this.dims)
+			Game.board[i] = new Array(this.dims).fill(null)
 			this.winningPath[i] = new Array(this.dims-1)
 		}
 		console.log(Game.board)
@@ -65,36 +66,39 @@ export class Game {
 				} else {
 					Game.board[this.row][this.col].drawAt(centreX, centreY, {offset: this.cellWidth/3})
 				}
-				this.clickTurn = (this.clickTurn + 1) % 2
+				// this.clickTurn = (this.clickTurn + 1) % 2
 				setTimeout(() => {
 					console.log('Board at click:', Game.board.map(row => row.map(cell => cell?.getType())))
 					console.log('The clickTurn is:', this.clickTurn)
 				}, 100)
 			}
 			if(this.checkWin(this.row, this.col)) {
-				const sfx = new SoundsOfTiki(wasted)
-				sfx.play()
+				this.sfx = new SoundsOfTiki(wasted)
+				this.sfx.play()
 				running = false
-				// console.log(Game.board.map(row => row.map(cell => cell?.getType())))
 				// Draw the winning message
 				this.ctx.font = '20px Arial'
 				this.ctx.textAlign = 'center'
 				this.ctx.fillStyle = '#ffff00'
-				
 				this.drawWinPath(this.winningPath)
 				const winner = this.winner === 1 ? 'Noughts' : 'Crosses'
-				console.log('The winner:',winner, this.winningPath)
+				console.log('The winner:',winner)
 				this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
+				// this.gameOver()
 				setTimeout(() => {
 					this.clearBoard()
 					this.winner = null
-					console.log('Supposedly cleared board:', Game.board, '\nThe winner is: ', this.winner)
-					console.log('Piece still exists:', Game.board[this.row][this.col])
+					console.log('Supposedly cleared board:', Game.board, '\nThe winner is: ', this.winner)	
 				}, 3000)
+				this.clickTurn = 0
 				// sfx.stop()
+
 			}
 			else if(this.isBoardFull() && !this.checkWin(this.row, this.col)) {
-				this.ctx.font = '20px Arial'
+				running = false
+				this.sfx = new SoundsOfTiki(draw)
+				this.sfx.play()
+				this.ctx.font = '40px Impact'
 				this.ctx.textAlign = 'center'
 				this.ctx.fillStyle = '#599b92'
 				this.ctx.fillText('Draw!', this.canvas.width/2, this.canvas.height/2)
@@ -221,7 +225,8 @@ export class Game {
 
 		this.col = col
 		this.row = row
-		console.log(`User clicked on: [${row}, ${col}]`)
+
+		this.clickTurn = (this.clickTurn + 1) % 2
 	}
 
 	/**
@@ -232,35 +237,33 @@ export class Game {
 		let isWin = false
 		let winAxis = '' // the winning axis(row, column or diagonal)
 		
+		const cols = Game.board.map(arr => arr[col]?.getType())
+		if(cols.every(val => val === cols[0])) {
+			winAxis = 'col'
+			this.generateWinningPath(winAxis, col)
+			console.log('Game won on(col): ', row, col)
+			this.winner = cols[0]
+			console.log('The winningPath is: ', this.winningPath)
+			isWin = true	
+		}	
+
 		for (let i = 0; i < Game.board.length; i++) {
 			if(Game.board[i][row]) {
 				const rowSet = new Set(Game.board[i].map(piece => piece?.getType()))
 				if(rowSet.size === 1) {
 					winAxis = 'row'
-					console.log('Game won on(row):', i, row)
+					// console.log('Game won on(row):', i, row)
 					this.generateWinningPath(winAxis, row)
 					this.winner = Game.board[i][row].getType()
 					isWin = true
 				}
 			}
 
-			if(Game.board[col][i]) {
-				const colSet = new Set(Game.board.map(piece => piece[col]?.getType()))
-				if(colSet.size == 1) {
-					winAxis = 'col'
-					this.generateWinningPath(winAxis, i)
-					console.log('Game won on(col): ', col, i)
-					this.winner = Game.board[col][i].getType()
-					console.log('The winningPath is: ', this.winningPath)
-					isWin = true	
-				}
-			}
-
 			if(Game.board[i][i]) {
-				const posSet = new Set(Game.board.map((rows, idx, arr) => arr[idx][idx]?.getType()))
+				const posSet = new Set(Game.board.map((_, idx, arr) => arr[idx][idx]?.getType()))
 				if(posSet.size == 1) {
 					winAxis = 'posdiag'
-					console.log('Game won on(posdiag):', i, i)
+					// console.log('Game won on(posdiag):', i, i)
 					this.generateWinningPath(winAxis, i)
 					this.winner = Game.board[i][i].getType()
 					isWin = true
@@ -271,7 +274,7 @@ export class Game {
 				const antiSet = new Set(Game.board.map((_, idx, arr) => arr[idx][Game.board.length - 1 - idx]?.getType()))
 				if(antiSet.size == 1) {
 					winAxis = 'antidiag'
-					console.log('Game won on(antidiag):', i, (Game.board.length - 1 - i))
+					// console.log('Game won on(antidiag):', i, (Game.board.length - 1 - i))
 					this.generateWinningPath(winAxis, Game.board.length - 1 - i)
 					this.winner = Game.board[i][Game.board.length - 1 - i]?.getType()
 					isWin = true
@@ -309,26 +312,21 @@ export class Game {
 			}
 		}
 	}
-
+						
 	/**
 	 * Clears the game board
-	 * @todo: clear the board and redraw the board
-	 * @todo: clear the board from the winningPath
 	 */
 	private clearBoard() {
-		this.clickTurn = 0
+		// this.clickTurn = 0
+		// this.update()
+		this.row = -1, this.col = -1
 		this.winningPath = []
 		this.ctx.strokeStyle = '#fff'
 		this.ctx.fillStyle = '#000'
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 
-		// const filled = Game.board.filter(row => row.filter(piece => piece !== null))
 		for(let i = 0; i < this.dims; i++) {
-			// for(let j = 0; j < this.dims; j++) {
-			// Use the clear method of the piece to clear out the board
-			// 	Game.board[i][j]?.clear(i, j, this.cellWidth, this.cellHeight)
-			// }
-			Game.board[i] = new Array(this.dims)
+			Game.board[i] = new Array(this.dims).fill(null)
 			this.ctx.beginPath()
 			this.ctx.moveTo(0, i * this.cellHeight)
 			this.ctx.lineTo(this.dims * this.cellWidth, i * this.cellHeight)
@@ -342,21 +340,26 @@ export class Game {
 			
 	}
 
+	/**
+	 * @todo Implement a proper gameOver method that will be used for the game.
+	 */
+	private gameOver() {
+		this.clickTurn = null
+	}
+
 	run(): void {
 		// Likely the source of the reset issue
 		this.render()
 		if (!running) {
 			cancelAnimationFrame(this.reqId)
-			// Remove the event listener on the handlePlayerInput function to prevent multiple listeners
-			// console.log('Temporarily paused execution on:', this.reqId)
 			setTimeout(() => {
 				this.reqId = requestAnimationFrame(this.run.bind(this))
 				running = true
-				console.log('Piece still exists:', Game.board[this.row][this.col])
+				// console.log('Piece still exists:', Game.board[this.row][this.col])
 			}, 5000)
 		} else {
-			this.render()
 			this.reqId = requestAnimationFrame(this.run.bind(this))
+			this.render()
 			this.update()
 		}
 	
