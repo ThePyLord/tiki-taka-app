@@ -5,10 +5,11 @@ TO DO:
 <!-- - Add players() -->
 - ~~Add a way to check if anyone has won~~
 - ~~Add sound effects~~
-- Replace `requestAnimationFrame()` with a slower method to update the game state. 
+
 
 IN PROGRESS:
- - ~~Checking if the game is won(rows and (positive)diagonal works[05/12/2021])~~
+- Replace `requestAnimationFrame()` with a slower method to update the game state. 
+- ~~Checking if the game is won(rows and (positive)diagonal works[05/12/2021])~~
 
 DONE:
 - Draw a line along the winning path
