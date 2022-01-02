@@ -8,13 +8,14 @@ TO DO:
 
 
 IN PROGRESS:
-- Replace `requestAnimationFrame()` with a slower method to update the game state. 
-- ~~Checking if the game is won(rows and (positive)diagonal works[05/12/2021])~~
+- Multiplayer
+- Add a computer player
 
 DONE:
 - Draw a line along the winning path
 - Add sound effects 
 - Persist the app theme
+- - Replace `requestAnimationFrame()` with a slower method to update the game state. 
 - Game login custom title bar
 - Checking if the game is won(ALL WORK[28/12/2021]) 
 
