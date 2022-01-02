@@ -46,7 +46,13 @@ export default class Piece {
 		}
 	}
 
-
+	/**
+	 * @deprecated 
+	 * @param x the x coordinate of the cell to clear the Piece from
+	 * @param y the y coordinate of the cell to clear the Piece from
+	 * @param width the width to clear
+	 * @param height the height to clear 
+	 */
 	clear(x: number, y: number, width: number, height: number): void {
 		// this.ctx.fillStyle = '#000'
 		this.ctx.clearRect(x, y, width, height)
