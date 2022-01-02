@@ -2,7 +2,7 @@ import dgram from 'dgram'
 
 class Client {
 	private client: dgram.Socket
-	private port:number
+	private port: number
 	constructor(port: number) {
 		this.client = dgram.createSocket('udp4')
 		this.client.on('error', err => {
@@ -14,4 +14,4 @@ class Client {
 }
 
 
-// const mine = new Client(8080)
+const mine = new Client(8080)
