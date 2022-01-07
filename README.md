@@ -1,13 +1,16 @@
 # Tic-Tac-Toe
 
 TO DO:
-- Add a computer player
-<!-- - Add players() -->
+- Add a computer player 
 - ~~Add a way to check if anyone has won~~
 - ~~Add sound effects~~
 
 
 IN PROGRESS:
+- Multiplayer(2 players)
+	- Lobby for players to join
+	- Prompt for player names
+	- Timeout?(if inactivity)
 - Replace `requestAnimationFrame()` with a slower method to update the game state. 
 - ~~Checking if the game is won(rows and (positive)diagonal works[05/12/2021])~~
 

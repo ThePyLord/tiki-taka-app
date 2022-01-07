@@ -5,5 +5,6 @@ module.exports = {
   // Exclude .spec.ts files from tests
   testRegex: '/tests/.*\\.test\\.ts$',
   // Exclude node_modules from tests
-  testPathIgnorePatterns: ['/node_modules/']
+  testPathIgnorePatterns: ['/node_modules/'],
+  // watch: true,
 };

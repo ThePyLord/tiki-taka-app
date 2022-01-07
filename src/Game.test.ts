@@ -1,4 +1,4 @@
-import { Game } from '../src/components/Game'
+import { Game } from './components/Game'
 
 // Dummy test
 test('should equal two', () => {
@@ -29,7 +29,7 @@ describe('Game suite', () => {
 	test('should render game board', () => {
 		game = new Game(canvas, ctx)
 		// const run = 
-		expect(game.run()).toHaveBeenCalled()
+		expect(game.start()).toHaveBeenCalled()
 	})
 	
 		

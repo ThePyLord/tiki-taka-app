@@ -1,34 +1,8 @@
-/**
- * This file will automatically be loaded by webpack and run in the "renderer" context.
- * To learn more about the differences between the "main" and the "renderer" context in
- * Electron, visit:
- *
- * https://electronjs.org/docs/tutorial/application-architecture#main-and-renderer-processes
- *
- * By default, Node.js integration in this file is disabled. When enabling Node.js integration
- * in a renderer process, please be aware of potential security implications. You can read
- * more about security risks here:
- *
- * https://electronjs.org/docs/tutorial/security
- *
- * To enable Node.js integration in this file, open up `main.js` and enable the `nodeIntegration`
- * flag:
- *
- * ```
- *  // Create the browser window.
- *  mainWindow = new BrowserWindow({
- *    width: 800,
- *    height: 600,
- *    webPreferences: {
- *      nodeIntegration: true
- *    }
- *  });
- * ```
- */
-import './styles/game.css';
+import './styles/game.css'
 // import './styles/main.scss' // Sass doesn't work yet
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
-import { Game } from './components/Game';
+console.log('👋 This message is being logged by "renderer.js", included via webpack')
+import { Game } from './components/Game'
+import { MessagePayload } from '../server/interfaces'
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // No Node.js APIs are available in this process unless
@@ -88,4 +62,27 @@ function toggleTheme() {
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
 const game = new Game(canvas, ctx)
+
 game.start()
+
+const socket = new WebSocket('ws://localhost:5000')
+
+const payload: MessagePayload = {
+	type: 'message',
+	data: 'Hello from client'
+}
+socket.onopen = () => {
+	socket.send(JSON.stringify(payload))
+}
+
+socket.onmessage = (msg) => {
+	let response: MessagePayload = JSON.parse(msg.data)
+	console.log(response.data)
+
+	response = {
+		type: 'message',
+		data: 'Received message from server'
+	}
+
+	socket.send(JSON.stringify(response))
+}
