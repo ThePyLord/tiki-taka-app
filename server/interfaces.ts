@@ -6,7 +6,7 @@ export interface Client {
 }
 
 
-type payloadType = 'message' | 'join' | 'leave'
+type payloadType = 'message' | 'join' | 'leave' | 'create'
 
 export interface MessagePayload {
 	readonly type: payloadType
@@ -14,5 +14,11 @@ export interface MessagePayload {
 }
 
 export interface IHash {
-	[key: string | number]: Client
+	[key: string ]: Client
+}
+
+export interface Lobby {
+	id: string
+	name: string
+	players: IHash
 }

@@ -57,6 +57,7 @@ function toggleTheme() {
 }
 
 
+const socket = new WebSocket('ws://localhost:5003')
 
 /** GAME INITIALIZATION */
 const canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -65,7 +66,6 @@ const game = new Game(canvas, ctx)
 
 game.start()
 
-const socket = new WebSocket('ws://localhost:5000')
 
 const payload: MessagePayload = {
 	type: 'message',
@@ -78,11 +78,14 @@ socket.onopen = () => {
 socket.onmessage = (msg) => {
 	let response: MessagePayload = JSON.parse(msg.data)
 	console.log(response.data)
-
+	
 	response = {
 		type: 'message',
 		data: 'Received message from server'
 	}
 
-	socket.send(JSON.stringify(response))
+	socket.send(JSON.stringify({
+		type: 'message',
+		data: game.state.board
+	}))
 }

@@ -1,27 +1,28 @@
 import * as dotenv from 'dotenv'
 import ws, { Server } from 'ws'
-import { Client, IHash, MessagePayload } from './interfaces'
+import { Client, IHash, Lobby, MessagePayload } from './interfaces'
 import { Game } from '../src/components/Game'
 import { randomUUID } from 'crypto'
 
 dotenv.config()
-const PORT = Number(process.env.PORT) || 5000
-
+const PORT = Number(process.env.PORT) || 5003
 const MAX_CLIENTS_PER_CONN = 2
 
 const server = new Server({port: PORT})
 const clients: Client[] = []
 const clientHash: IHash = {}
 const games = new Map<string, Game>()
-
 const clientTable = new Map<string, Client>()
+
 let clientId = 0
+let payload = {
+	type: 'message',
+	data: 'Too many clients connected'
+}
 
 server.on('connection', (sock) => {
 	console.log('New connection')
 
-
-	// let theHash = hash('hello')
 	const clientID = randomUUID()
 	clientHash[clientID] = {
 		client: sock,
@@ -30,12 +31,12 @@ server.on('connection', (sock) => {
 	clientTable.set(clientID, {client: sock})
 
 	if(clients.length >= MAX_CLIENTS_PER_CONN) {
-		sock.send('Too many clients')
+		sock.send(JSON.stringify(payload))
 		sock.close()
 		return
 	}
 
-	const responsePayLoad: MessagePayload = {
+	payload = {
 		type: 'message',
 		data: 'Welcome to the server, here\'s the news of today, ' + news[Math.floor(Math.random() * news.length)]
 	}
@@ -43,8 +44,9 @@ server.on('connection', (sock) => {
 	clients.push(client)
 	clientId++
 	
-	sock.send(JSON.stringify(responsePayLoad))
+	sock.send(JSON.stringify(payload))
 	sock.on('message', message => {
+
 		let payload = JSON.parse(message.toString()) as MessagePayload
 		
 		clients.forEach(({client, id}) => {
@@ -52,9 +54,9 @@ server.on('connection', (sock) => {
 				type: payload.type,
 				data: 'Message from ' + id + ': ' + payload.data
 			}
-			if(sock !== client) {
-				client.send(JSON.stringify(payload))
-			}
+			// if(sock !== client) {
+			// 	client.send(JSON.stringify(payload))
+			// }
 		})
 
 
@@ -89,13 +91,3 @@ const news = [
 	"iPad2 sold out",
 	"Nation's rappers down to last two samples"
 ]
-
-
-
-// function hash(key:string) {
-// 	let hashCode = 0
-// 	for(let i = 0; i < key.length; i++) {
-// 		hashCode = (hashCode << 5) + hashCode + key.charCodeAt(i)
-// 	}
-// 	return hashCode % TABLE_SIZE
-// }

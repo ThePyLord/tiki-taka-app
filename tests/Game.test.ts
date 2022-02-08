@@ -1,4 +1,4 @@
-import { Game } from './components/Game'
+import { Game } from '../src/components/Game'
 
 // Dummy test
 test('should equal two', () => {
@@ -32,5 +32,8 @@ describe('Game suite', () => {
 		expect(game.start()).toHaveBeenCalled()
 	})
 	
-		
+	it('Should ensure the board is clear', () => {
+		expect(game.clearBoard()).toBeTruthy()
+	})
+
 })

@@ -47,4 +47,11 @@ export class SoundsOfTiki {
 	public stop(): void {
 		this.audioSource.stop(this.audioCtx.currentTime + 1)
 	}
+	
+	public export(): void {
+		const arrayBuffer = this.audioBuffer
+		const arr = new Float32Array()
+		arrayBuffer.copyFromChannel(arr, 0)
+	}
+
 }

@@ -9,13 +9,14 @@ export class Game {
 	private readonly canvas: HTMLCanvasElement
 	private readonly ctx: CanvasRenderingContext2D
 	private readonly dims: number
+	private readonly currPlayer: pieceType
 	private winningPath: number[][]
 	
 	private clickTurn: number
 	private cellWidth: number
 	private cellHeight: number
-	private winner: pieceType | null = null
-	static board: Piece[][] | null[][]
+	private winner: pieceType = null
+	private static board: Piece[][]
 	private col: number; row: number
 	private gameOver: boolean
 	private sfx: SoundsOfTiki
@@ -58,10 +59,17 @@ export class Game {
 			console.log(`${client.id} has joined the game`)
 		}
 		return true
-		// this.players.push(client)
-		// throw new Error('Method not implemented.')
 	}
 	
+	
+	get state(): {board: Piece[][], currPlayer: pieceType} {
+		return {
+			board: Game.board,
+			currPlayer: this.clickTurn + 1
+		}
+	}
+	
+
 	/**
 	 * Updates the game logic 
 	 */
@@ -87,6 +95,7 @@ export class Game {
 				this.sfx = new SoundsOfTiki(wasted)
 				this.sfx.play()
 				this.gameOver = true
+				// this.sfx.export()
 				// Draw the winning message
 				this.ctx.font = '20px Arial'
 				this.ctx.textAlign = 'center'
@@ -324,7 +333,7 @@ export class Game {
 	/**
 	 * Clears the game board
 	 */
-	private clearBoard() {	
+	public clearBoard(): boolean {	
 		this.row = -1, this.col = -1
 		this.winningPath = []
 		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
@@ -333,7 +342,7 @@ export class Game {
 		for(let i = 0; i < this.dims; i++) {
 			Game.board[i] = new Array(this.dims).fill(null)
 		}
-			
+		return true
 	}	
 	
 	/**
@@ -342,11 +351,5 @@ export class Game {
 	 */
 	start(): void {
 		this.render()
-/* 		if(this.gameOver)
-		{
-			console.log('Game Over!')
-			this.gameOver = false
-			this.start()
-		}	 */
 	}
 }

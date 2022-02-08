@@ -18,7 +18,7 @@
   "include": [
     "src/**/*",
     "src/types/*"
-  ],
+, "tests/Game.test.ts"  ],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"

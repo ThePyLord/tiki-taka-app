@@ -59,7 +59,7 @@ describe('Test the Player class', () => {
 	})
 
 	it('Should properly instantiate a Player', () => {
-		const me = new Player({name: 'John Doe', id: 13, isAI: false})
+		const me = new Player({name: 'John Doe', isAI: false})
 		expect(Player).toHaveBeenCalledTimes(2)
 	})
 })
