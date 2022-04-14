@@ -2,14 +2,12 @@ import Piece, { pieceType } from './Piece'
 import { SoundsOfTiki } from '../../lib/Music'
 import wasted from '../../assets/audio/lesgooo.mp3'
 import draw from '../../assets/audio/draw.mp3'
-import { Client } from '../../server/interfaces'
 
 // Create a game object that contains all the game logic
 export class Game {
 	private readonly canvas: HTMLCanvasElement
 	private readonly ctx: CanvasRenderingContext2D
 	private readonly dims: number
-	private readonly currPlayer: pieceType
 	private winningPath: number[][]
 	
 	private clickTurn: number
@@ -20,7 +18,7 @@ export class Game {
 	private col: number; row: number
 	private gameOver: boolean
 	private sfx: SoundsOfTiki
-	private players: Client[] = []
+	
 	/**
 	 * creates a new Game
 	 * @param canvas The canvas to draw the board on
@@ -29,7 +27,8 @@ export class Game {
 	 */
 	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, dims?: number) {
 		this.canvas = canvas
-		this.canvas.addEventListener('click', this.handlePlayerInput.bind(this))
+		// this.canvas.addEventListener('click', this.handlePlayerInput.bind(this))
+		this.canvas.addEventListener('click', this.handlePlayerInput)
 		this.dims = dims > 3 ? dims : 3
 		this.ctx = ctx
 		
@@ -49,26 +48,6 @@ export class Game {
 		}
 		
 	}
-	/**
-	 * Adds a player to the game
-	 * @param player the player to add
-	 */
-	addPlayer(client: Client): boolean {
-		if(!this.players.some(player => player.id === client.id)) {
-			this.players.push(client)
-			console.log(`${client.id} has joined the game`)
-		}
-		return true
-	}
-	
-	
-	get state(): {board: Piece[][], currPlayer: pieceType} {
-		return {
-			board: Game.board,
-			currPlayer: this.clickTurn + 1
-		}
-	}
-	
 
 	/**
 	 * Updates the game logic 
@@ -86,9 +65,9 @@ export class Game {
 				const type: pieceType = this.clickTurn + 1
 				Game.board[this.row][this.col] = new Piece(this.ctx, type)
 				if(type % 2 !== 0) {
-					Game.board[this.row][this.col].drawAt(centreX, centreY, {rad: this.cellWidth/3})
+					Game.board[this.row][this.col].drawAt(centreX, centreY, this.cellWidth /3)
 				} else {
-					Game.board[this.row][this.col].drawAt(centreX, centreY, {offset: this.cellWidth/3})
+					Game.board[this.row][this.col].drawAt(centreX, centreY, this.cellWidth /3)
 				}				
 			}
 			if(this.checkWin(this.row, this.col)) {
@@ -96,6 +75,7 @@ export class Game {
 				this.sfx.play()
 				this.gameOver = true
 				// this.sfx.export()
+				this.canvas.removeEventListener('click', this.handlePlayerInput)
 				// Draw the winning message
 				this.ctx.font = '20px Arial'
 				this.ctx.textAlign = 'center'
@@ -103,30 +83,30 @@ export class Game {
 				this.drawWinPath(this.winningPath)
 				const winner = this.winner === 1 ? 'Noughts' : 'Crosses'
 				this.ctx.fillText(`${winner} wins!`, this.canvas.width/2, this.canvas.height/2)
-				console.log('The winner:',winner)
-				console.log('The fillStyle is: '+ this.ctx.fillStyle)
 				// Changing the fillStyle so the board can be cleared with a black background
 				this.ctx.fillStyle = '#000'
 				this.ctx.restore()
 				setTimeout(() => {
 					this.clearBoard()
 					this.winner = null
+					this.canvas.addEventListener('click', this.handlePlayerInput)
 				}, 3000)
 				this.clickTurn = 0
 			}
 			else if(this.isBoardFull() && !this.checkWin(this.row, this.col)) {
 				this.gameOver = true
+				this.canvas.removeEventListener('click', this.handlePlayerInput)
 				this.sfx = new SoundsOfTiki(draw)
 				this.sfx.play()
 				this.ctx.font = '20px Arial'
 				this.ctx.textAlign = 'center'
 				this.ctx.fillStyle = '#599b92'
 				this.ctx.fillText('Draw!', this.canvas.width/2, this.canvas.height/2)
-				
 				this.ctx.fillStyle = '#000'
 				this.ctx.restore()
 				setTimeout(() => {
 					this.clearBoard()
+					this.canvas.addEventListener('click', this.handlePlayerInput)
 				}, 3000)
 				console.log('Game board:', Game.board)
 				this.clickTurn = 0
@@ -235,8 +215,8 @@ export class Game {
 		}
 		return isFull
 	}
-	
-	private handlePlayerInput(e: MouseEvent) {
+
+	private handlePlayerInput = (e: MouseEvent) => {
 		// Get the mouse position
 		const [mouseX, mouseY] = [e.offsetX, e.offsetY]
 
@@ -250,6 +230,7 @@ export class Game {
 		}
 		this.update()
 	}
+
 
 	/**
 	 * the method that checks if the game is won

@@ -11,7 +11,6 @@ IN PROGRESS:
 	- Lobby for players to join
 	- Prompt for player names
 	- Timeout?(if inactivity)
-- Replace `requestAnimationFrame()` with a slower method to update the game state. 
 - ~~Checking if the game is won(rows and (positive)diagonal works[05/12/2021])~~
 
 DONE:
@@ -20,6 +19,7 @@ DONE:
 - Persist the app theme
 - Game login custom title bar
 - Checking if the game is won(ALL WORK[28/12/2021]) 
+- Replace `requestAnimationFrame()` with a slower method to update the game state. 
 
 HOW TO RUN:
  - After cloning/forking the repo, you can run `npm start` to run the application.

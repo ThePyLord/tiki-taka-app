@@ -2,7 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "module": "commonjs",
-    "target": "ESNext",
+    "target": "ES2022",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,

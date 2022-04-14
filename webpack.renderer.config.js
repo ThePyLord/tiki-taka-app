@@ -11,7 +11,11 @@ rules.push({
   options: {
     name: '[path][name].[ext]',
   },
-});
+},{
+  test: /\.(png|svg|jpg|jpeg|gif)$/i,
+  type: 'asset/resource',
+}
+);
 
 module.exports = {
   module: {

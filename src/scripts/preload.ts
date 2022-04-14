@@ -5,8 +5,11 @@ export const api = {
 	createWin: (): void => {
 		ipcRenderer.invoke('user-init')
 	},
-	sayHello: (): void => {
-		console.log('Hello')
+	getClipboard: (): Promise<string> => {
+		return ipcRenderer.invoke('user-get-clipboard')
+	},
+	setClipboard: (text: string)	: void => {
+		ipcRenderer.invoke('user-set-clipboard', text)
 	},
 	minimize: (): void => {
 		ipcRenderer.send('app/minimize')

@@ -24,24 +24,24 @@ export default class Piece {
 		return this.type;
 	}
 
-	drawAt(x: number, y: number, options?: {rad?: number, offset?: number}): void {
+	drawAt(x: number, y: number, offset: number): void {
 
 		if(this.type == pieceType.nought) {
 			this.ctx.strokeStyle = this.noughtColor
 			this.ctx.beginPath()
-			this.ctx.arc(x, y, options.rad, 0, 2 * Math.PI)
+			this.ctx.arc(x, y, offset, 0, 2 * Math.PI)
 			this.ctx.stroke()
 		} 
 		else if(this.type == pieceType.cross) {
 			this.ctx.strokeStyle = this.crossColor
 			this.ctx.beginPath()
-			this.ctx.moveTo(x - options.offset, y - options.offset)
-			this.ctx.lineTo(x + options.offset, y + options.offset)
+			this.ctx.moveTo(x - offset, y - offset)
+			this.ctx.lineTo(x + offset, y + offset)
 			this.ctx.stroke()
 
 			this.ctx.beginPath()
-			this.ctx.moveTo(x - options.offset, y + options.offset)
-			this.ctx.lineTo(x + options.offset, y - options.offset)
+			this.ctx.moveTo(x - offset, y + offset)
+			this.ctx.lineTo(x + offset, y - offset)
 			this.ctx.stroke()
 		}
 	}

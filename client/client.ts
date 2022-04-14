@@ -25,10 +25,3 @@ socket.onmessage = (msg) => {
 		// TODO
 	}
 }
-
-const canvas = document.getElementById('canvas') as HTMLCanvasElement
-const ctx = canvas.getContext('2d')
-const game = new Game(canvas, ctx)
-game.start()
-const board = game.state['board']
-const currPlayer = game.state['currPlayer']

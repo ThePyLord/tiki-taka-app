@@ -11,7 +11,7 @@
     "publish": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "test": "jest",
-    "serve": "ts-node server/server.ts"
+    "serve": "nodemon server/server.ts"
   },
   "keywords": [],
   "author": {
@@ -48,7 +48,10 @@
         [
           "@electron-forge/plugin-webpack",
           {
-            "devContentSecurityPolicy": "default-src 'self' 'unsafe-inline' ws: data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:; connect-src 'self' ws:;",
+            "devContentSecurityPolicy": "default-src 'self' 'unsafe-inline' ws: data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:; connect-src 'self' ws:; img-src 'self' https://c.tenor.com;",
+            "port": 5500,
+            "loggerPort": 9002,
+            "host": "0.0.0.0",
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
               "config": "./webpack.renderer.config.js",
@@ -70,9 +73,7 @@
                   }
                 }
               ]
-            },
-            "port": 9001,
-            "loggerPort": 9002
+            }
           }
         ]
       ]
@@ -106,7 +107,7 @@
     "ts-jest": "^27.0.7",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
-    "typescript": "^4.5.2"
+    "typescript": "^4.6.3"
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
