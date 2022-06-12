@@ -12,6 +12,7 @@ const create = document.getElementById('create') as HTMLElement
 const input = document.getElementById('game-id') as HTMLInputElement
 const btnCreate = document.getElementById('create-game') as HTMLButtonElement
 const btnJoin = document.getElementById('join-game') as HTMLButtonElement
+const sarah = document.querySelector('.sarah') as HTMLElement
 let userId: string
 let gameId: string
 let boardSize: number
@@ -21,6 +22,12 @@ let cellTop: number
 let cellLeft: number
 
 ctx.fillStyle = '#000'
+
+sarah.addEventListener('click', () => {
+	window.api.navigation.navigate('src/init.html')
+	console.log('clicked.')
+})
+
 btnCreate.addEventListener('click', () => {
 	const payload = {
 		type: 'create',
@@ -31,7 +38,7 @@ btnCreate.addEventListener('click', () => {
 
 btnJoin.addEventListener('click', () => {
 	// const modal = new Modal(ModalEnum.err, 'You must put in a game id')
-	if(!gameId) {
+	if (!gameId) {
 		gameId = input.value.trim()
 	}
 	const payload = {
@@ -45,16 +52,16 @@ btnJoin.addEventListener('click', () => {
 	}, 1000)
 })
 
-sock.onmessage = async ({data}) => {
+sock.onmessage = async ({ data }) => {
 	const response = JSON.parse(data) as MessagePayload
 	// connect to the server
-	if(response.type == 'connect') {
+	if (response.type == 'connect') {
 		userId = response.data
 		console.log(`Connected to server with id: ${userId}`)
 	}
 
 	// create game
-	if(response.type == 'create') {
+	if (response.type == 'create') {
 		gameId = JSON.parse(response.data).id
 		create.innerHTML = `Game ID: ${gameId}`
 		// Copy the input to the clipboard
@@ -63,7 +70,7 @@ sock.onmessage = async ({data}) => {
 		// console.log('Clipboard content from main process:', await window.api.getClipboard())
 	}
 
-	if(response.type == 'join') { 
+	if (response.type == 'join') {
 		const game = JSON.parse(response.data)
 		boardSize = game.board.length
 		cellHeight = Math.floor(canvas.height / boardSize)
@@ -74,33 +81,32 @@ sock.onmessage = async ({data}) => {
 		})
 	}
 
-	if(response.type == 'move') {
+	if (response.type == 'move') {
 		const game = JSON.parse(response.data) as DataPayload
 		const [centreX, centreY] = game.coord
 		const [normX, normY] = normCoords(centreX, centreY)
 		ctx.lineWidth = 1.3
 		const piece = new Piece(ctx, game.board[normY][normX] as pieceType)
 
-
 		// Attempting to draw a piece without using a loop
 		// GREAT SUCCESS!
-		if(game.board[normY][normX] == 1) {
+		if (game.board[normY][normX] == 1) {
 			piece.drawAt(centreX, centreY, cellWidth / 3)
 		}
-		if(game.board[normY][normX] == 2) {
+		if (game.board[normY][normX] == 2) {
 			piece.drawAt(centreX, centreY, cellWidth / 3)
 		}
-		
+
 	}
 
-	if(response.type == 'win') {
+	if (response.type == 'win') {
 		const game = JSON.parse(response.data) as DataPayload
 		const [centreX, centreY] = game.coord
 		const [normX, normY] = normCoords(centreX, centreY)
 		const clientId = game.players.find(player => player.clientId === userId).clientId
-		if(game.winner === clientId) {
+		if (game.winner === clientId) {
 			const modal = new Modal(ModalEnum.info, `You won!`)
-			setTimeout(() => modal.create(), 4000)
+			// setTimeout(() => modal.create(), 4000)
 			const babyOnBaby = new SoundsOfTiki(wasted)
 			babyOnBaby.play()
 		}
@@ -111,12 +117,13 @@ sock.onmessage = async ({data}) => {
 			setTimeout(() => modal.create(), 4000)
 		}
 		const piece = new Piece(ctx, game.board[normY][normX] as pieceType)
-		if(game.board[normY][normX] == 1) {
+		if (game.board[normY][normX] == 1) {
 			piece.drawAt(centreX, centreY, cellWidth / 3)
 		}
-		if(game.board[normY][normX] == 2) {
+		if (game.board[normY][normX] == 2) {
 			piece.drawAt(centreX, centreY, cellWidth / 3)
 		}
+
 		drawWinPath(game.path)
 		canvas.removeEventListener('click', handlePlayerInput)
 		setTimeout(() => {
@@ -136,13 +143,13 @@ function render(boardSize: number) {
 	ctx.strokeStyle = '#fff'
 	ctx.lineWidth = 1.3
 	ctx.fillRect(0, 0, canvas.width, canvas.height)
-	
-	for(let i = 0; i < boardSize; i++) {
+
+	for (let i = 0; i < boardSize; i++) {
 		ctx.beginPath()
 		ctx.moveTo(0, i * cellHeight)
 		ctx.lineTo(canvas.width, i * cellHeight)
 		ctx.stroke()
-		
+
 		ctx.beginPath()
 		ctx.moveTo(i * cellWidth, 0)
 		ctx.lineTo(i * cellWidth, canvas.height)

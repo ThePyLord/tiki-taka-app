@@ -2,7 +2,7 @@ import { pieceType } from '../../src/components/Piece'
 import ws from "ws"
 
 type payloadType = 'connect' | 'join' | 'leave' | 'create' | 'message' | 'move' | 'win'
-
+export { pieceType }
 export enum ModalEnum {
 	err,
 	info
@@ -18,7 +18,7 @@ export interface GameData extends MessagePayload {
 }
 
 export interface IHash {
-	[key: string]:{
+	[key: string]: {
 		id: string
 		sock: ws
 	}
@@ -32,7 +32,7 @@ export interface DataPayload {
 	id: string
 	board: number[][]
 	winner: string
-	players: {piece: pieceType, clientId: string}[]
+	players: { piece: pieceType, clientId: string }[]
 	playerTurn: pieceType
 	coord: [number, number]
 	path?: number[][]

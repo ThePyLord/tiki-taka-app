@@ -3,6 +3,7 @@ import './styles/game.css'
 console.log('👋 This message is being logged by "renderer.js", included via webpack')
 // import { Game } from './components/Game'
 import './app/main'
+import './App'
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // No Node.js APIs are available in this process unless
@@ -53,11 +54,3 @@ function toggleTheme() {
 		localStorage.setItem('theme', 'light')
 	}
 }
-
-
-/** GAME INITIALIZATION */
-const canvas = document.getElementById('canvas') as HTMLCanvasElement
-const ctx = canvas.getContext('2d')
-// const game = new Game(canvas, ctx)
-
-// game.start()

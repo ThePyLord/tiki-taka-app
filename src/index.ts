@@ -27,17 +27,18 @@ const createWindow = (): void => {
     },
   })
   const sesh = mainWindow.webContents.session
-  
+
   // Disable main window resizing
   mainWindow.setResizable(false)
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
   mainWindow.menuBarVisible = false
-
+  windows.add(mainWindow)
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
-};
+  // mainWindow.webContents.openDevTools()
+
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -64,7 +65,7 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 ipcMain.handle('user-init', async () => {
-  if(popoutWindow) return popoutWindow.id
+  if (popoutWindow) return popoutWindow.id
 
   else {
     popoutWindow = new BrowserWindow({
@@ -100,7 +101,18 @@ ipcMain.on('app/close', () => {
 ipcMain.handle('user-get-clipboard', () => {
   return clipboard.readText()
 })
+
 ipcMain.handle('user-set-clipboard', (event, text) => {
   clipboard.writeText(text)
   console.log('Clipboard updated')
+})
+
+ipcMain.on('navigate', (event, url) => {
+  // console.log('navigate to', url)
+  // load the url in the main window
+  // windows.values().next().value.loadURL(url)
+  windows.forEach(window => {
+    if (window)
+      window.loadURL(LOGIN_WINDOW_WEBPACK_ENTRY)
+  })
 })

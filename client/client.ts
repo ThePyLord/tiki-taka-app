@@ -1,4 +1,4 @@
-import { MessagePayload } from "../server/interfaces"
+import { MessagePayload } from "../shared/interfaces";
 import { Game } from "../src/components/Game"
 
 const socket = new WebSocket('ws://localhost:5003')
