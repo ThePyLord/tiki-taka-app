@@ -1,17 +1,27 @@
-import dgram from 'dgram'
+import { MessagePayload } from "../shared/interfaces";
+import { Game } from "../src/components/Game"
 
-class Client {
-	private client: dgram.Socket
-	private port: number
-	constructor(port: number) {
-		this.client = dgram.createSocket('udp4')
-		this.client.on('error', err => {
-			console.error(`Error creating client: ${err.message}`)
-		})
-		this.port = port
-	}
+const socket = new WebSocket('ws://localhost:5003')
 
+const payload: MessagePayload = {
+	type: 'message',
+	data: 'Hello from client'
+}
+socket.onopen = () => {
+	socket.send(JSON.stringify(payload))
 }
 
+socket.onmessage = (msg) => {
+	let response: MessagePayload = JSON.parse(msg.data)
+	console.log(response.data)
 
-const mine = new Client(8080)
+	response = {
+		type: 'message',
+		data: 'Received message from server'
+	}
+
+	socket.send(JSON.stringify(response))
+	if(response.type == 'join') {
+		// TODO
+	}
+}

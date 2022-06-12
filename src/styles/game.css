@@ -1,3 +1,5 @@
+/* import the modal style */
+@import url('./modal.css');
 * {
 	margin: 0;
 	padding: 0;
@@ -18,6 +20,10 @@ body {
 	margin: 0px;
 	padding: 0px;
 	text-align: center;
+}
+
+canvas {
+	margin: 0 auto;
 }
 
 #main {
@@ -95,8 +101,4 @@ h1:first-of-type {
 	padding-left: 11em;
 	/* background-color: darksalmon; */
 	font-family: Comic Sans MS, cursive;
-}
-
-canvas {
-	margin: 0 auto;
 }

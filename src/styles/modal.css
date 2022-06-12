@@ -1,0 +1,61 @@
+.modal {
+	position: fixed; /* Stay in place */
+	user-select: none;
+	z-index: 1; /* Sit on top */
+	padding-top: 100px; /* Location of the box */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	background-color: rgba(0,0,0,0.4);
+}
+
+/* Modal Content */
+.modal-content {
+	background-color: #fefefe;
+	border-radius: 13px;
+	margin: auto;
+	padding: 20px;
+	border: 1px solid #888;
+	width: 40%;
+	height: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+
+.modal-content p {
+	color: black;
+}
+
+.modal-content h2 {
+	color: rgb(75, 190, 90);
+}
+
+/* The Close Button */
+#close-btn {
+    background-color: lavender;
+    color: #000;
+    width: 5rem;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+    transform: translate(7em, 0.3rem);
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+#close-btn:hover {
+	background-color: rgb(35, 65, 163);
+	color: white;
+}

@@ -1,6 +1,3 @@
-import checkout from '../assets/audio/lesgooo.mp3';
-import wasted from '../assets/audio/wasted.mp3'
-
 // TO GET **CUSTOM** AUDIO TO WORK
 // 1. Create a type declaration for the audio file
 // 2. Import the audio file(s). The ES6 way
@@ -34,7 +31,7 @@ export class SoundsOfTiki {
 				this.audioBuffer = audioBuffer
 				this.audioSource.buffer = this.audioBuffer
 			})
-			.catch(error => console.error(error))
+			.catch(console.error)
 
 		this.audioSource.buffer = this.audioBuffer
 		this.audioSource.connect(gain).connect(this.audioCtx.destination)
@@ -47,4 +44,11 @@ export class SoundsOfTiki {
 	public stop(): void {
 		this.audioSource.stop(this.audioCtx.currentTime + 1)
 	}
+	
+	public export(): void {
+		const arrayBuffer = this.audioBuffer
+		const arr = new Float32Array()
+		arrayBuffer.copyFromChannel(arr, 0)
+	}
+
 }

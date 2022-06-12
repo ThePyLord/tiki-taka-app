@@ -1,39 +1,46 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' data: fonts.gstatic.com; style "> -->
-    <title>Hello World!</title>
 
-  </head>
-  <body>
-    <h1>Tic Tac Toe!</h1>
-    <main id="main">
-      <aside id="info">
-        <h2 class="instructions">Instructions</h2>
-        <p>
-          This is a game of Tic Tac Toe. You will be playing against the computer.
-          The first player to get three in a linear fashion wins(horizontally, vertically, or diagonally).
-        </p>
-        <p>
-          To make a move, click on an empty square.
-        </p>
-        <div class="choice">
-          Choose your piece:
-          <div class="x">
-            X
-          </div>
-          <div class="0">
-            O
-          </div>
-        </div>
-        <div class="btn">
-          Toggle Theme
-        </div>
-      </aside>
-      <canvas id="canvas" width="500" height="500"></canvas>
-    </main>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
 
-  </body>
+</head>
+
+<body>
+  <h1>Tic Tac Toe!</h1>
+  <main id="main">
+    <aside id="info">
+      <h2 class="instructions">Instructions</h2>
+      <p>
+        This is a game of Tic Tac Toe. You will be playing against the computer.
+        The first player to get three in a linear fashion wins(horizontally, vertically, or diagonally).
+      </p>
+      <p>
+        To make a move, click on an empty square.
+        <button class="sarah">Sarah is within 4 miles of you</button>
+      </p>
+      <div class="choice">
+        Choose your piece:
+        <div class="x">
+          X
+        </div>
+        <div class="0">
+          O
+        </div>
+      </div>
+      <div class="btn">
+        Toggle Theme
+      </div>
+      <button id="create-game">Create Game</button>
+      <div id="create">Game ID: </div>
+      <input type="text" name="game-id" id="game-id">
+      <button id="join-game">Join Game</button>
+    </aside>
+    <canvas id="canvas" width="500" height="500"></canvas>
+  </main>
+
+</body>
+
 </html>
