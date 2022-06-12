@@ -5,6 +5,7 @@ TO DO:
 - ~~Add a way to check if anyone has won~~
 - ~~Add sound effects~~
 - Timeout?(if inactivity)
+- Implement React.js to make navigation easier between pages
 
 
 IN PROGRESS:
@@ -27,12 +28,12 @@ HOW TO RUN:
 
 
 Directories:
-	- src/components: Components
-	- src/app: App logic
-	- src/styles: Styles
-	- src/mongo: MongoDB and database logic
-	- src/scripts: pre-loaded scripts
-	- server/ : Server logic
-	- shared/interfaces : Interfaces
-	- client/ : Client logic
-	- assets/ : Assets
+- src/components: Components
+- src/app: App logic
+- src/styles: Styles
+- src/mongo: MongoDB and database logic
+- src/scripts: pre-loaded scripts
+- server/ : Server logic
+- shared/interfaces : Interfaces
+- client/ : Client logic
+- assets/ : Assets
