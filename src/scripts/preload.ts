@@ -1,11 +1,5 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
-const navigation = {
-	navigate: (url: string) => {
-		ipcRenderer.send('navigate', url)
-	}
-}
-
 export const api = {
 	createWin: (): void => {
 		ipcRenderer.invoke('user-init')
@@ -22,7 +16,7 @@ export const api = {
 	closeWin: (): void => {
 		ipcRenderer.send('app/close')
 	},
-	navigation
+
 }
 
 contextBridge.exposeInMainWorld('api', api)

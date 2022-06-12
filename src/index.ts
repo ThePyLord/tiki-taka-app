@@ -106,13 +106,3 @@ ipcMain.handle('user-set-clipboard', (event, text) => {
   clipboard.writeText(text)
   console.log('Clipboard updated')
 })
-
-ipcMain.on('navigate', (event, url) => {
-  // console.log('navigate to', url)
-  // load the url in the main window
-  // windows.values().next().value.loadURL(url)
-  windows.forEach(window => {
-    if (window)
-      window.loadURL(LOGIN_WINDOW_WEBPACK_ENTRY)
-  })
-})

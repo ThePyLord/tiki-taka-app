@@ -12,7 +12,6 @@ const create = document.getElementById('create') as HTMLElement
 const input = document.getElementById('game-id') as HTMLInputElement
 const btnCreate = document.getElementById('create-game') as HTMLButtonElement
 const btnJoin = document.getElementById('join-game') as HTMLButtonElement
-const sarah = document.querySelector('.sarah') as HTMLElement
 let userId: string
 let gameId: string
 let boardSize: number
@@ -23,10 +22,6 @@ let cellLeft: number
 
 ctx.fillStyle = '#000'
 
-sarah.addEventListener('click', () => {
-	window.api.navigation.navigate('src/init.html')
-	console.log('clicked.')
-})
 
 btnCreate.addEventListener('click', () => {
 	const payload = {
