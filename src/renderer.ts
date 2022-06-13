@@ -44,11 +44,11 @@ function toggleTheme() {
 	document.body.classList.toggle('dark-mode')
 	this.classList.toggle('active')
 	if (this.classList.contains('active')) {
-		this.style.color = '#000'
+		this.style.color = '#fff'
 		localStorage.setItem('theme', 'dark')
 	}
 	else {
-		this.style.color = '#fff'
+		this.style.color = '#000'
 		localStorage.setItem('theme', 'light')
 	}
 }

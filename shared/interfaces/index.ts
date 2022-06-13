@@ -10,7 +10,7 @@ export enum ModalEnum {
 
 export interface MessagePayload {
 	readonly type: payloadType
-	data: string 
+	data: string
 }
 
 export interface GameData extends MessagePayload {
