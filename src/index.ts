@@ -36,7 +36,7 @@ const createWindow = (): void => {
   mainWindow.menuBarVisible = false
   windows.add(mainWindow)
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
 }
 
