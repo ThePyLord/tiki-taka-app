@@ -1,4 +1,3 @@
-import './styles/game.css'
 // import './styles/main.scss' // Sass doesn't work yet
 console.log('👋 This message is being logged by "renderer.js", included via webpack')
 // import { Game } from './components/Game'

@@ -1,8 +1,15 @@
 import { ipcRenderer, contextBridge } from 'electron'
 
-const navigation = {
-	navigate: (url: string) => {
-		ipcRenderer.send('navigate', url)
+const Window = {
+	minimize: (): void => {
+		ipcRenderer.send('app/minimize')
+	},
+	closeWin: (): void => {
+		ipcRenderer.send('app/close')
+	},
+	// create a method getWinTitle that gets the title of the current window
+	getWinTitle: (): Promise<string> => {
+		return ipcRenderer.invoke('app/getWinTitle')
 	}
 }
 
@@ -16,13 +23,7 @@ export const api = {
 	setClipboard: (text: string): void => {
 		ipcRenderer.invoke('user-set-clipboard', text)
 	},
-	minimize: (): void => {
-		ipcRenderer.send('app/minimize')
-	},
-	closeWin: (): void => {
-		ipcRenderer.send('app/close')
-	},
-	navigation
+	Window
 }
 
 contextBridge.exposeInMainWorld('api', api)

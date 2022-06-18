@@ -12,7 +12,7 @@
 	--hover: #66c887;
 }
 
-#game-container { 
+#container { 
 	background-color: rgb(170, 164, 164);
 	color: #000;
 	font-family: Arial, Helvetica, sans-serif;
@@ -21,7 +21,7 @@
 	text-align: center;
 }
 
-canvas {
+#canvas {
 	margin: 0 auto;
 }
 
@@ -95,9 +95,46 @@ canvas {
 	font-size: 1.7rem;
 }
 
-.main-title {
+.mainTitle {
 	font-size: 20px;
-	padding-left: 11em;
+	/* padding-left: 11em; */
+	flex: 2;
 	/* background-color: darksalmon; */
-	font-family: Comic Sans MS, cursive;
+}
+
+.leave {
+	margin-top: 5px;
+	text-decoration: none;
+	font-size: medium;
+	display: flex;
+	justify-content: flex-start;
+}
+
+.top {
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.back {
+	position: relative;
+	/* top: -1em; */
+	left: 2rem;
+}
+
+.chevron::before {
+	border-style: solid;
+	border-width: 0.25em 0.25em 0 0;
+	content: '';
+	display: inline-block;
+	height: 0.45em;
+	left: 0.15em;
+	position: relative;
+	top: 0.15em;
+	transform: rotate(-135deg);
+	vertical-align: top;
+	width: 0.45em;
+}
+
+.backText {
+	padding-left: 0.25rem;
 }

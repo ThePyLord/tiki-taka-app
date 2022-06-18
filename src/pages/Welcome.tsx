@@ -1,10 +1,14 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-import Piece from '../components/Piece'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { DataPayload, MessagePayload, pieceType } from '../../shared/interfaces'
-import '../styles/game.css'
+import Button from '../components/Button'
+import Piece from '../components/Piece'
+import styles from '../styles/game.module.css'
+import { isElectron } from '../utils/electronCheck'
 
 const ThemeContext = React.createContext('dark')
+
+const WIDTH = 166
 
 export default function Welcome() {
 	const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark')
@@ -17,34 +21,69 @@ export default function Welcome() {
 	const inputRef = useRef<HTMLInputElement>(null)/* .current */
 	const sockRef = useRef<WebSocket>(null)/* .current */
 
-	const sock = new WebSocket('ws://50.71.103.10:5600')
+	const onCreate = () => {
+		const payload = {
+			type: 'create',
+			data: `${userId}`
+		}
+		console.log('Sending payload: ', payload)
+		sockRef.current.send(JSON.stringify(payload))
+	}
+
+	const onJoin = () => {
+		console.log('in onJoin, the game id is: ', gameId)
+		if (!gameId)
+			setGameId(inputRef?.current.value.trim())
+		const payload = {
+			type: 'join',
+			data: `${userId},${gameId}`
+		}
+		console.log('Sending payload: ', payload)
+		sockRef.current.send(JSON.stringify(payload))
+		setTimeout(() => {
+			inputRef.current.value = ''
+		}, 1000)
+	}
+
+	const onLeave = () => {
+		const payload = {
+			type: 'leave',
+			data: `${userId},${gameId}`
+		}
+		console.log('Sending payload: ', payload)
+		sockRef.current.send(JSON.stringify(payload))
+	}
 
 	const onMessage = useCallback((ev: MessageEvent) => {
-		const ctx = canvasRef.current.getContext('2d')
 		const { data, type }: MessagePayload = JSON.parse(ev.data)
 		if (type === 'connect') {
 			setUserId(data)
-			console.log(`User ID: ${data}`)
+			console.log(`User ID: ${userId}`)
 		}
 
 		if (type === 'create') {
 			const { id } = JSON.parse(data) as DataPayload
-			console.log('Game ID:', id)
-			const gameId = id
-			setGameId(gameId)
-			window.api.setClipboard(id)
-			console.log(`Game ID: ${gameId}`)
+			setGameId(id)
+			if (isElectron)
+				window.api.setClipboard(id)
+			else {
+				navigator.clipboard.writeText(id)
+				// print what was copied to the console
+				navigator.clipboard.readText().then(console.log)
+			}
 		}
 
 		if (type === 'join') {
-			console.log('type', type);
 			const game = JSON.parse(data) as DataPayload
 			console.log('board size:', game.board.length)
+			console.log('The game id: ', gameId);
+			const boardLen = game.board.length
+			const cWidth = Math.floor(canvasRef.current.width / boardLen)
 			setBoardSize(game.board.length)
-			setCellWidth(Math.floor(canvasRef.current.width / boardSize))
+			setCellWidth(Math.floor(canvasRef.current.width / boardLen))
 			game.players.forEach(() => {
 				canvasRef.current.addEventListener('click', handleInput)
-				render(ctx, boardSize)
+				render(ctx.current, boardLen, cWidth)
 			})
 		}
 
@@ -52,14 +91,15 @@ export default function Welcome() {
 			const game = JSON.parse(data) as DataPayload
 			const [centreX, centreY] = game.coord
 			const [normX, normY] = normCoords(centreX, centreY)
-			ctx.lineWidth = 1.3
-			const piece = new Piece(ctx, game.board[normY][normX] as pieceType)
-			piece.drawAt(centreX, centreY, cellWidth / 3)
+			ctx.current.lineWidth = 1.3
+			const piece = new Piece(ctx.current, game.board[normY][normX] as pieceType)
+			piece.drawAt(centreX, centreY, WIDTH / 3)
 		}
 		console.log('New message event listener added')
-	}, [])
+	}, [userId, gameId, cellWidth, boardSize])
 
-	const render = (ctx: CanvasRenderingContext2D, boardSize: number) => {
+	const render = (ctx: CanvasRenderingContext2D, boardSize: number, cellSize: number) => {
+		console.log('Render called, cell width: ', cellWidth, 'boardSize:', boardSize)
 		ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
 		ctx.strokeStyle = '#fff'
 		ctx.lineWidth = 1.3
@@ -67,38 +107,39 @@ export default function Welcome() {
 
 		for (let i = 0; i < boardSize; i++) {
 			ctx.beginPath()
-			ctx.moveTo(0, i * cellWidth)
-			ctx.lineTo(canvasRef.current.width, i * cellWidth)
+			ctx.moveTo(0, i * cellSize)
+			ctx.lineTo(canvasRef.current.width, i * cellSize)
 			ctx.stroke()
 
 			ctx.beginPath()
-			ctx.moveTo(i * cellWidth, 0)
-			ctx.lineTo(i * cellWidth, canvasRef.current.height)
+			ctx.moveTo(i * cellSize, 0)
+			ctx.lineTo(i * cellSize, canvasRef.current.height)
 			ctx.stroke()
 		}
 		ctx.fillStyle = '#000'
 		ctx.save()
 	}
 
-	// function render(ctx: CanvasRenderingContext2D, boardSize: number) {
-	// }
-
 	const handleInput = (e: MouseEvent) => {
 		const [mouseX, mouseY] = [e.offsetX, e.offsetY]
-		const row = Math.floor(mouseY / cellWidth)
-		const col = Math.floor(mouseX / cellWidth)
-		const cellTop = row * cellWidth
-		const cellLeft = col * cellWidth
+		const row = Math.floor(mouseY / WIDTH)
+		const col = Math.floor(mouseX / WIDTH)
+		const cellTop = row * WIDTH
+		const cellLeft = col * WIDTH
 
-		const centreX = cellLeft + cellWidth / 2
-		const centreY = cellTop + cellWidth / 2
-
+		const centreX = cellLeft + WIDTH / 2
+		const centreY = cellTop + WIDTH / 2
+		console.log('gameId in handleInput', gameId)
 		const payload: MessagePayload = {
 			type: 'move',
-			data: `${userId}, ${gameId}, ${row}, ${col}, ${centreX}, ${centreY}`
+			data: `${userId},${gameId},${row},${col},${centreX},${centreY}`
 		}
-		sock.send(JSON.stringify(payload))
+		sockRef.current.send(JSON.stringify(payload))
 	}
+
+	useEffect(() => {
+		console.log('The user id changed:', userId)
+	}, [userId])
 
 	useEffect(() => {
 		if (theme === 'dark') {
@@ -106,20 +147,19 @@ export default function Welcome() {
 		} else {
 			document.body.classList.remove('dark-mode')
 		}
-		// const ctx = canvasRef.current.getContext('2d')
-		if (canvasRef.current) {
+		if (canvasRef.current)
 			ctx.current = canvasRef.current.getContext('2d')
-			ctx.current.fillStyle = '#000'
-		}
-		console.log('The canvas fillstyle is:', ctx.current.fillStyle)
+
+
+		sockRef.current = new WebSocket('ws://50.71.103.10:5600')
+		sockRef.current.onopen = () => console.log('Connected to server')
 	}, [])
 
 	useEffect(() => {
-		sock.addEventListener('message', onMessage)
-
-		// return () => {
-		// 	sock.removeEventListener('message', onMessage)
-		// }
+		sockRef.current.addEventListener('message', onMessage)
+		return () => {
+			sockRef.current.removeEventListener('message', onMessage)
+		}
 	}, [onMessage])
 
 	function normCoords(x: number, y: number): [number, number] {
@@ -129,9 +169,18 @@ export default function Welcome() {
 	}
 
 	return (
-		<div className='container'  >
-			<h1 style={{ padding: 0 }}>TIC TAC TOE</h1>
-			<main id="main">
+		<div id={styles.container}>
+			<section className={styles.top}>
+				<div className={styles.back}>
+					<Link onClick={onLeave} to="/main_window" className={styles.leave}>
+						<span className={styles.chevron}></span>
+						{/* Back to Home */}
+						<p className={styles.backText}>Back Home</p>
+					</Link>
+				</div>
+				<h1 className={styles.mainTitle}>TIC TAC TOE</h1>
+			</section>
+			<main id={styles.main}>
 				<aside id="info">
 					<h2 className="instructions">Instructions</h2>
 					<p>
@@ -141,45 +190,14 @@ export default function Welcome() {
 					<p>
 						To make a move, click on an empty square.
 					</p>
-					<div className="btn">Toggle Theme</div>
-					<button
-						onClick={() => {
-							const payload = {
-								type: 'create',
-								data: `${userId}`
-							}
-							console.log('Sending payload: ', payload)
-							sock.send(JSON.stringify(payload))
-						}}
-					>
-						Create Game
-					</button>
+					<div className={styles.btn}>Toggle Theme</div>
+					<Button onClick={onCreate} text='Create Game' />
 					<div id="create">Game ID: {gameId}</div>
 					<input type="text" name="game-id" id="game-id" ref={inputRef} />
-					<button
-						id="join-game"
-						onClick={() => {
-							if (!gameId)
-								setGameId(inputRef?.current.value.trim())
-							const payload = {
-								type: 'join',
-								data: `${userId}, ${gameId}`
-							}
-							console.log('Sending payload: ', payload)
-							sock.send(JSON.stringify(payload))
-							setTimeout(() => {
-								inputRef.current.value = ''
-							}, 10000)
-						}}
-					>
-						Join Game
-					</button>
+					<Button onClick={onJoin} text='Join Game' />
 				</aside>
 				<canvas id="canvas" width="500" height="500" ref={canvasRef} ></canvas>
 			</main>
-			<div className="back">
-				<Link to="/main_window">Back to Home</Link>
-			</div>
 		</div>
 	)
 }    

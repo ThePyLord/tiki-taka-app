@@ -22,22 +22,38 @@ const createWindow = (): void => {
   const mainWindow = new BrowserWindow({
     height: 650,
     width: 800,
+    frame: false,
+    transparent: true,
+    opacity: 1,
     webPreferences: {
+      nodeIntegration: false,
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
     },
   })
   const sesh = mainWindow.webContents.session
 
+  ipcMain.on('app/minimize', () => {
+    mainWindow.minimize()
+  })
+  
+  ipcMain.on('app/close', () => {
+    mainWindow.close()
+  })
+  
+  
+  
   // Disable main window resizing
   mainWindow.setResizable(false)
-
+  
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
   mainWindow.menuBarVisible = false
-  windows.add(mainWindow)
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
-
+  
+  ipcMain.handle('app/getWinTitle', () => {
+    return mainWindow.getTitle()
+  })
 }
 
 // This method will be called when Electron has finished
@@ -90,13 +106,6 @@ ipcMain.handle('user-init', async () => {
   }
 })
 
-ipcMain.on('app/minimize', () => {
-  popoutWindow.minimize()
-})
-
-ipcMain.on('app/close', () => {
-  popoutWindow.close()
-})
 
 ipcMain.handle('user-get-clipboard', () => {
   return clipboard.readText()
@@ -105,14 +114,4 @@ ipcMain.handle('user-get-clipboard', () => {
 ipcMain.handle('user-set-clipboard', (event, text) => {
   clipboard.writeText(text)
   console.log('Clipboard updated')
-})
-
-ipcMain.on('navigate', (event, url) => {
-  // console.log('navigate to', url)
-  // load the url in the main window
-  // windows.values().next().value.loadURL(url)
-  windows.forEach(window => {
-    if (window)
-      window.loadURL(LOGIN_WINDOW_WEBPACK_ENTRY)
-  })
 })

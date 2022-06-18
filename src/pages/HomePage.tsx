@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-
+import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
+import styles from '../styles/homepage.module.css'
 
 export default function HomePage() {
-	useEffect(() => {
-		console.log('loaded homepage.')
-	}, [])
 	return (
-		<div className='container'>
-			<h1 className='title'>Home Page</h1>
-			<Link to="/welcome">Welcome Page</Link>
+		<div className={styles.container}>
+			<h1 className={styles.title}>Tiki Taka App</h1>
+			<Link to="/welcome" className={styles.link}>Start Multiplayer</Link>
 		</div>
 	)
 }

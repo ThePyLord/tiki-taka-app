@@ -48,7 +48,7 @@
         [
           "@electron-forge/plugin-webpack",
           {
-            "devContentSecurityPolicy": "default-src 'self' 'unsafe-inline' ws: data:; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:; connect-src 'self' ws:; img-src 'self' https://c.tenor.com;",
+            "devContentSecurityPolicy": "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' ws:; img-src 'self' https://c.tenor.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
             "port": 5500,
             "loggerPort": 9002,
             "host": "0.0.0.0",

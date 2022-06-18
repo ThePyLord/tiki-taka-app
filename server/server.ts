@@ -15,7 +15,7 @@ let payload: MessagePayload = {
 }
 const played: string[] = []
 server.on('connection', (sock) => {
-	console.log('New connection')
+	// console.log('New connection')
 
 	const clientID = randomUUID()
 	clientHash[clientID] = {
@@ -36,7 +36,7 @@ server.on('connection', (sock) => {
 		if (response.type === 'create') {
 			const gameId = randomUUID()
 			const connId = response.data
-			console.log('The payload is:', response)
+			// console.log('The payload is:', response)
 			// Initialize a new game
 			games[gameId] = {
 				id: gameId,
@@ -52,18 +52,17 @@ server.on('connection', (sock) => {
 				type: 'create',
 				data: JSON.stringify(games[gameId])
 			}
-
+			// console.log('The game is:', games[gameId])
 			clientHash[connId].sock.send(JSON.stringify(response))
 		}
 
 		// Join a game
 		if (response.type === 'join') {
-			console.log('The payload is:', response)
+			// console.log('The payload is:', response)
 			const [clientId, gameId] = response.data.split(',')
-
 			if (games[gameId]) {
 				const game = games[gameId]
-
+				console.log('game exists.')
 				game.players.forEach(p => {
 					if (p.clientId === clientId) {
 						console.log('This client is already in the game')
@@ -84,6 +83,7 @@ server.on('connection', (sock) => {
 					type: 'join',
 					data: JSON.stringify(game)
 				}
+				console.log('sending payload to ', game.players)
 				game.players.forEach(p => {
 					clientHash[p.clientId].sock.send(JSON.stringify(response))
 				})
@@ -130,7 +130,7 @@ server.on('connection', (sock) => {
 						game.board = createBoard(3)
 						game.winner = null
 						game.playerTurn = null
-						game.coord = [null, null] 
+						game.coord = [null, null]
 						console.log('The game has been reset:', game.board)
 					}
 					else if (fullBoard(game.board) && !checkWin(row, col, game.board)) {
@@ -143,19 +143,39 @@ server.on('connection', (sock) => {
 					}
 				}
 			}
-
 		}
+		if(response.type == 'leave') {
+			const [clientId, gameId] = response.data.split(',')
+			const game = games[gameId]
+			if (game) {
+				const player = game.players.find(p => p.clientId === clientId)
+				if (player) {
+					game.players = game.players.filter(p => p.clientId !== clientId)
+					if (game.winner === clientId) {
+						game.winner = null
+					}
+					// if (game.playerTurn === clientId) {
+					// 	game.playerTurn = null
+					// }
+					if (game.players.length === 0) {
+						delete games[gameId]
+						console.log('The game has been deleted')
+					}
+					clientHash[clientId].sock.close(1000, 'Player left.')
+					delete clientHash[clientId]
+					console.log('Player left:', clientId)
 
+				}
+			}
+		}
 	})
-	sock.on('close', () => {
+	sock.on('close', (code, reason) => {
 		// find the game the client is in
 		// remove the client from the game
 		// if the game is empty, delete the game
 		// send the game state to the client
-		Object.values(games).forEach((game) => {
-			game.players = game.players.filter(p => p.clientId !== clientID)
-		})
-		delete clientHash[clientID]
+		console.log('Client disconnected:', code, reason.toString())
+		console.log('Time:', new Date().toLocaleString())
 	})
 
 })

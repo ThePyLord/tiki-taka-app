@@ -4,7 +4,7 @@ const minimize = document.getElementById('minimize')
 const close = document.getElementById('close')
 
 minimize.addEventListener('click', () => {
-	window.api.minimize()
+	window.api.Window.minimize()
 })
 
-close.addEventListener('click', () => {window.api.closeWin()})
+close.addEventListener('click', () => {window.api.Window.closeWin()})

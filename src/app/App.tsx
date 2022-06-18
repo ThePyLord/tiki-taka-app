@@ -1,22 +1,26 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
 	BrowserRouter as Router,
 	Route,
-	NavLink,
-	Routes
+	Routes,
 } from 'react-router-dom'
 import Welcome from '../pages/Welcome'
 import HomePage from '../pages/HomePage'
+import TitleBar from '../components/TitleBar'
+import styles from '../styles/window.module.css'
+import { isElectron } from '../utils/electronCheck'
+
+
 
 function App() {
 	return (
-		<div>
+		<div className={styles.main}>
+			{isElectron && <TitleBar />}
 			<Router>
 				<Routes>
 					<Route path="/main_window" element={<HomePage />} />
 					<Route path="/welcome" element={<Welcome />} />
-					<Route path="/" element={<Welcome />} />
 					<Route path='*' element={<HomePage />} />
 				</Routes>
 			</Router>

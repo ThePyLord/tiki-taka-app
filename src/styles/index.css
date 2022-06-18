@@ -1,17 +1,56 @@
-body { 
-	background-color: #fff;
-	color: #000;
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	margin: 0px;
-	padding: 0px;
+:root{
+	--def-height: 5%;
+}
+
+body {
+	overflow: hidden;
+}
+
+nav {
+	width: 100%;
+	margin-top: -3px;
+	display: grid;
+	grid-template-columns: 1fr 5fr 1fr;
+	justify-content: space-between;
+	align-items: center;
+	-webkit-app-region: drag;
+	background-color: rgb(246, 247, 247);
+}
+
+.winTitle {
+	font-size: small;
+	font-family: 'Montserrat', sans-serif;
 	text-align: center;
 }
 
-#btn {
-	display: none;
+.right-nav {
+	/* grid-column-end: auto; */
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
 }
 
-canvas {
-	margin: 0 auto;
+.navLink {
+	/* margin-top: 0; */
+	padding-right: 1rem;
+	padding-left: 1rem;
+	text-decoration: none;
+	font-size: 1.2rem;
+	font-family: 'Montserrat', sans-serif;
+	font-weight: lighter;
+	-webkit-app-region: no-drag;
+	background-clip: border-box;
+}
+
+.minimize {
+	font-weight: 900;
+	height: 100%;
+}
+
+.close:hover {
+	background-color: red;
+}
+
+.minimize:hover {
+	background-color: #5b5d5bae;
 }

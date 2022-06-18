@@ -5,10 +5,11 @@ TO DO:
 - ~~Add a way to check if anyone has won~~
 - ~~Add sound effects~~
 - Timeout?(if inactivity)
-- Implement React.js to make navigation easier between pages
+- New server architecture
 
 
 IN PROGRESS:
+- Implement React.js to make navigation easier between pages(Lobby, Homepage, Game)
 - Multiplayer(2 players)
 	- Lobby for players to join
 	- Prompt for player names
@@ -17,7 +18,6 @@ DONE:
 - Draw a line along the winning path
 - Add sound effects 
 - Persist the app theme
-- Replace `requestAnimationFrame()` with a slower method to update the game state. 
 - Game login custom title bar
 - Checking if the game is won(ALL WORK[28/12/2021]) 
 - Replace `requestAnimationFrame()` with a more efficient method to update the game state. 
