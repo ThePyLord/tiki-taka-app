@@ -38,7 +38,6 @@ export default function Welcome() {
 			type: 'join',
 			data: `${userId},${inputVal || gameId}`
 		}
-		console.log(`(IN JOIN) The game's id is: ${gameId}`)
 		sockRef.current.send(JSON.stringify(payload))
 		setTimeout(() => {
 			inputRef.current.value = ''
@@ -58,7 +57,6 @@ export default function Welcome() {
 		const { data, type }: MessagePayload = JSON.parse(ev.data)
 		if (type === 'connect') {
 			setUserId(data)
-			console.log(`User ID: ${userId}`)
 		}
 
 		if (type === 'create') {
@@ -101,7 +99,6 @@ export default function Welcome() {
 	}, [userId, gameId, cellWidth, boardSize])
 
 	const render = (ctx: CanvasRenderingContext2D, boardSize: number, cellSize: number) => {
-		console.log('Render called, cell width:', cellWidth, 'boardSize:', boardSize)
 		ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
 		ctx.strokeStyle = '#fff'
 		ctx.lineWidth = 1.3
@@ -124,13 +121,20 @@ export default function Welcome() {
 
 	const handleInput = (e: MouseEvent) => {
 		const [mouseX, mouseY] = [e.offsetX, e.offsetY]
-		const row = Math.floor(mouseY / WIDTH)
-		const col = Math.floor(mouseX / WIDTH)
-		const cellTop = row * WIDTH
-		const cellLeft = col * WIDTH
+		const row = Math.floor(mouseX / WIDTH)
+		const col = Math.floor(mouseY / WIDTH)
+		const cellTop = col * WIDTH
+		const cellLeft = row * WIDTH
 
 		const centreX = cellLeft + WIDTH / 2
 		const centreY = cellTop + WIDTH / 2
+		// new data payload to be used in upcoming version
+		const data = {
+			userId: userId,
+			gameId: gameId,
+			coord: [centreX, centreY],
+			cellCoord: [row, col]
+		}
 		const payload: MessagePayload = {
 			type: 'move',
 			data: `${userId},${gameId},${row},${col},${centreX},${centreY}`
@@ -152,7 +156,7 @@ export default function Welcome() {
 		return () => {
 			sockRef.current.removeEventListener('message', onMessage)
 		}
-	}/* , [onMessage] */)
+	}, [onMessage])
 
 	function normCoords(x: number, y: number): [number, number] {
 		const normX = Math.floor(x / cellWidth)
@@ -181,9 +185,9 @@ export default function Welcome() {
 					<p>
 						To make a move, click on an empty square.
 					</p>
-					<button className={styles.btn} onClick={toggleTheme}>Toggle Theme | {theme === 'light' ? '☀️' : '🌙'}</button>
+					<button className={styles.btn} onClick={toggleTheme}>Toggle Theme | {theme === 'light' ? '☀️' : '🌑'}</button>
 					<Button onClick={onCreate} text='Create Game' />
-					<div id="create">Game ID: {gameId}</div>
+					<div id={styles.create}>Game ID: {gameId}</div>
 					<input type="text" name="game-id" id="game-id" ref={inputRef} />
 					<Button onClick={onJoin} text='Join Game' />
 				</aside>

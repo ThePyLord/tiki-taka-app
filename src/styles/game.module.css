@@ -140,3 +140,7 @@
 .backText {
 	padding-left: 0.25rem;
 }
+
+#create {
+	user-select: text;
+}

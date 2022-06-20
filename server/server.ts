@@ -15,20 +15,17 @@ let payload: MessagePayload = {
 }
 const played: string[] = []
 server.on('connection', (sock) => {
-	// console.log('New connection')
-
 	const clientID = randomUUID()
 	clientHash[clientID] = {
 		id: clientID,
 		sock
 	}
 
-
 	payload = {
 		type: 'connect',
 		data: clientID
 	}
-	sock.send(JSON.stringify(payload), () => console.log('Sent connect message', payload))
+	sock.send(JSON.stringify(payload))
 	sock.on('message', message => {
 		let response = JSON.parse(message.toString()) as MessagePayload
 
@@ -44,7 +41,7 @@ server.on('connection', (sock) => {
 				players: [],
 				winner: null,
 				playerTurn: null,
-				coord: /* [null, null] */ null,
+				coord: [null, null],
 			}
 
 			// Send the game state to the client
@@ -113,7 +110,7 @@ server.on('connection', (sock) => {
 					// 	game.board[row][col] = player.piece
 					// 	game.playerTurn = (player.piece - 1) % 2
 					// }
-
+					console.log(clientID, 'clicked', [row, col])
 					const [isWin, path] = checkWin(row, col, game.board)
 					if (isWin) {
 						console.log('The game has been won:', checkWin(row, col, game.board))

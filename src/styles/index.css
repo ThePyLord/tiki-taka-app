@@ -24,16 +24,15 @@ nav {
 }
 
 .right-nav {
-	/* grid-column-end: auto; */
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    align-self: stretch;
+    overflow: hidden;
 }
 
 .navLink {
-	/* margin-top: 0; */
-	padding-right: 1rem;
-	padding-left: 1rem;
+	padding: 0 1rem;
 	text-decoration: none;
 	font-size: 1.2rem;
 	font-family: 'Montserrat', sans-serif;
@@ -44,7 +43,7 @@ nav {
 
 .minimize {
 	font-weight: 900;
-	height: 100%;
+	/* height: 100%; */
 }
 
 .close:hover {
