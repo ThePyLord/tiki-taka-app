@@ -32,13 +32,6 @@ const createWindow = (): void => {
   })
   const sesh = mainWindow.webContents.session
 
-  ipcMain.on('app/minimize', () => {
-    mainWindow.minimize()
-  })
-  
-  ipcMain.on('app/close', () => {
-    mainWindow.close()
-  })
   
   
   
@@ -50,10 +43,7 @@ const createWindow = (): void => {
   mainWindow.menuBarVisible = false
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
-  
-  ipcMain.handle('app/getWinTitle', () => {
-    return mainWindow.getTitle()
-  })
+
 }
 
 // This method will be called when Electron has finished
@@ -82,7 +72,7 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 ipcMain.handle('user-init', async () => {
   if (popoutWindow) return popoutWindow.id
-
+  
   else {
     popoutWindow = new BrowserWindow({
       width: 300,
@@ -114,4 +104,18 @@ ipcMain.handle('user-get-clipboard', () => {
 ipcMain.handle('user-set-clipboard', (event, text) => {
   clipboard.writeText(text)
   console.log('Clipboard updated')
+})
+
+ipcMain.on('app/minimize', (ev, args) => {
+  const win = BrowserWindow.fromWebContents(ev.sender)
+  win.minimize()
+})
+
+ipcMain.on('app/close', (ev) => {
+  const win = BrowserWindow.fromWebContents(ev.sender)
+  win.close()
+})
+
+ipcMain.handle('app/getWinTitle', (ev, args) => {
+  return ev.sender.getTitle()
 })

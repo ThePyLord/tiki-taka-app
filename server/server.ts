@@ -107,6 +107,7 @@ server.on('connection', (sock) => {
 						game.board[row][col] = player.piece
 						game.playerTurn = (game.playerTurn + 1) % 2
 					}
+					console.log(game.players.at(-1), 'clicked', [row, col])
 					// TODO: Use this to maintain the turn instead of the above
 					// if(game.playerTurn === player.piece) {
 					// 	game.board[row][col] = player.piece

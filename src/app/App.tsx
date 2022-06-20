@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { createRoot } from 'react-dom/client'
 import {
 	BrowserRouter as Router,
@@ -10,6 +10,7 @@ import HomePage from '../pages/HomePage'
 import TitleBar from '../components/TitleBar'
 import styles from '../styles/window.module.css'
 import { isElectron } from '../utils/electronCheck'
+import { Theme } from '../components/Theme'
 
 
 
@@ -28,4 +29,9 @@ function App() {
 	)
 }
 const root = createRoot(document.getElementById('root'))
-root.render(<App />)
+root.render(
+	<React.StrictMode>
+		<Theme>
+			<App />
+		</Theme>
+	</React.StrictMode>)

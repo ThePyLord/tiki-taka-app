@@ -21,6 +21,7 @@ export interface IHash {
 	[key: string]: {
 		id: string
 		sock: ws
+		alias?: string
 	}
 }
 
