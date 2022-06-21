@@ -4,9 +4,9 @@
 // 3. Use the fetch API to get the audio file
 
 export class SoundsOfTiki {
-	private audioCtx: AudioContext;
-	private audioBuffer: AudioBuffer;
-	private audioSource: AudioBufferSourceNode;
+	private audioCtx: AudioContext
+	private audioBuffer: AudioBuffer
+	private audioSource: AudioBufferSourceNode
 	private osc: OscillatorNode
 
 	constructor(private sound: any) {
@@ -49,6 +49,13 @@ export class SoundsOfTiki {
 		const arrayBuffer = this.audioBuffer
 		const arr = new Float32Array()
 		arrayBuffer.copyFromChannel(arr, 0)
+	}
+
+	destroy() {
+		// this.audioSource.stop()
+		this.audioSource.disconnect()
+		this.osc.disconnect()
+		this.audioCtx.close()
 	}
 
 }

@@ -9,7 +9,7 @@
     "noImplicitAny": true,
     "sourceMap": true,
     "baseUrl": ".",
-    "rootDir": ".",
+    // "rootDir": ".",
     "outDir": "dist",
     "strictNullChecks": false,
     "moduleResolution": "node",

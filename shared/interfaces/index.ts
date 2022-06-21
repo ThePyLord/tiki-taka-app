@@ -33,7 +33,7 @@ export interface DataPayload {
 	id: string
 	board: number[][]
 	winner: string
-	players: { piece: pieceType, clientId: string }[]
+	players: { piece: pieceType, clientId: string, alias: string }[]
 	playerTurn: pieceType
 	coord: [number, number]
 	path?: number[][]

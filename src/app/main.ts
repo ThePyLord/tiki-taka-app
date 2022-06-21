@@ -1,4 +1,4 @@
-import { Modal } from '../components/Modal'
+import { Modal } from '../components/vModal'
 import { DataPayload, MessagePayload, ModalEnum } from '../../shared/interfaces'
 import { SoundsOfTiki } from '../../lib/Music'
 import lBozo from '../../assets/audio/draw.mp3'

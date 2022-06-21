@@ -1,18 +1,28 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { SoundsOfTiki } from '../../lib/Music'
 import { DataPayload, MessagePayload, pieceType } from '../../shared/interfaces'
 import Button from '../components/Button'
 import Piece from '../components/Piece'
+import Modal from '../components/Modal'
 import { ThemeContext } from '../components/Theme'
-import styles from '../styles/game.module.css'
 import { isElectron } from '../utils/electronCheck'
+import kumalala from '../../assets/audio/Kumalala.mp3'
+import styles from '../styles/game.module.css'
+import lBozo from '../../assets/audio/wasted.mp3'
+import { drawWinPath } from '../utils/boardUtils'
 
 const WIDTH = 166
 export default function Welcome() {
 	const [userId, setUserId] = useState('')
+	const [username, setUsername] = useState('')
 	const [gameId, setGameId] = useState('')
 	const [boardSize, setBoardSize] = useState(0)
 	const [cellWidth, setCellWidth] = useState(0)
+	const [sounds, setSounds] = useState({
+		kumalala: new SoundsOfTiki(kumalala),
+		lBozo: new SoundsOfTiki(lBozo),
+	})
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const ctx = useRef<CanvasRenderingContext2D>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
@@ -29,7 +39,6 @@ export default function Welcome() {
 	}
 
 	const onJoin = () => {
-
 		if (!gameId)
 			setGameId(inputRef?.current.value.trim())
 
@@ -57,6 +66,26 @@ export default function Welcome() {
 		const { data, type }: MessagePayload = JSON.parse(ev.data)
 		if (type === 'connect') {
 			setUserId(data)
+			const userName = sessionStorage.getItem('name')
+			setUsername(userName)
+			const payload = {
+				type: 'connect',
+				data: {
+					userId: data,
+					userName: userName
+				}
+			}
+			sockRef.current.send(
+				JSON.stringify(
+					{
+						type: 'connect',
+						data: JSON.stringify({
+							userId: data,
+							userName: userName
+						})
+					}
+				)
+			)
 		}
 
 		if (type === 'create') {
@@ -96,6 +125,31 @@ export default function Welcome() {
 			}
 		}
 
+		if (type === 'win') {
+			const game = JSON.parse(data) as DataPayload
+			const [centreX, centreY] = game.coord
+			const [normX, normY] = normCoords(centreX, centreY)
+			ctx.current.lineWidth = 1.3
+			const clientId = game.players.find(p => p.clientId == userId).clientId
+			if (game.winner === clientId) {
+				const kumala = new SoundsOfTiki(kumalala)
+				kumala.play()
+			}
+			else {
+				const savesta = new SoundsOfTiki(lBozo)
+				savesta.play()
+			}
+			drawWinPath({
+				ctx: ctx.current,
+				path: game.path,
+				cellWidth: cellWidth,
+			})
+			canvasRef.current.removeEventListener('click', handleInput)
+			setTimeout(() => {
+				clearBoard()
+			}, 3000);
+		}
+
 	}, [userId, gameId, cellWidth, boardSize])
 
 	const render = (ctx: CanvasRenderingContext2D, boardSize: number, cellSize: number) => {
@@ -117,6 +171,11 @@ export default function Welcome() {
 		}
 		ctx.fillStyle = '#000'
 		ctx.save()
+	}
+
+	const clearBoard = () => {
+		ctx.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height)
+		render(ctx.current, boardSize, cellWidth)
 	}
 
 	const handleInput = (e: MouseEvent) => {
@@ -150,7 +209,12 @@ export default function Welcome() {
 		sockRef.current.onopen = () => console.log('Connected to server')
 	}, [])
 
-
+	useEffect(() => {
+		// destroy the sounds when the component is unmounted
+		return () => {
+			Object.values(sounds).forEach(s => s.destroy())
+		}
+	}, [sounds]);
 	useEffect(() => {
 		sockRef.current.addEventListener('message', onMessage)
 		return () => {
@@ -185,6 +249,7 @@ export default function Welcome() {
 					<p>
 						To make a move, click on an empty square.
 					</p>
+					<h3>Connected as {username}</h3>
 					<button className={styles.btn} onClick={toggleTheme}>Toggle Theme | {theme === 'light' ? '☀️' : '🌑'}</button>
 					<Button onClick={onCreate} text='Create Game' />
 					<div id={styles.create}>Game ID: {gameId}</div>

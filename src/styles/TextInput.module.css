@@ -1,0 +1,51 @@
+.body {
+	display: flex;
+}
+
+.field {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	position: relative;
+}
+
+#input {
+	font-size: 1rem;
+	outline: none;
+	border: 1px solid gray;
+	border-radius: 5px;
+	padding: 1rem 0.7rem;
+	color: darkcyan;
+	transition: 0.1s ease-out;
+}
+
+.label {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	background-color: white;
+	color: darkcyan;
+	padding: 0 0.3rem;
+	margin: 0 0.5rem;
+	transform-origin: left top;
+	transition: 0.1s ease-out;
+	font-size: 1rem;
+	pointer-events: none;
+	text-transform: capitalize;
+}
+
+#input.focus {
+	border-color: #6200EE;
+	/* box-shadow: 0 0 0 0.2em darkcyan; */
+}
+
+#input:focus + .label {
+	color: #000;
+	background-color: transparent;
+	top: 0;
+	transform: translateY(-50%) scale(0.9);
+}
+
+#input:not(:placeholder-shown) + .label {
+	top: 0;
+	transform: translateY(-50%) scale(0.9);
+}

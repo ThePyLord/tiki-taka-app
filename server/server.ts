@@ -28,7 +28,11 @@ server.on('connection', (sock) => {
 	sock.send(JSON.stringify(payload))
 	sock.on('message', message => {
 		let response = JSON.parse(message.toString()) as MessagePayload
-
+		if(response.type == 'connect') {
+			const data = JSON.parse(response.data)
+			console.log('User connected:', data.userName)
+			clientHash[data.userId].alias = data.userName
+		}
 		// Create a game
 		if (response.type === 'create') {
 			const gameId = randomUUID()
@@ -59,7 +63,7 @@ server.on('connection', (sock) => {
 			const [clientId, gameId] = response.data.split(',')
 			if (games[gameId]) {
 				const game = games[gameId]
-				console.log('game exists.')
+				// console.log('game exists.')
 				game.players.forEach(p => {
 					if (p.clientId === clientId) {
 						console.log('This client is already in the game')
@@ -67,7 +71,8 @@ server.on('connection', (sock) => {
 				})
 				game.players.push({
 					clientId,
-					piece: game.players.length % 2 ? pieceType.cross : pieceType.nought
+					piece: game.players.length % 2 ? pieceType.cross : pieceType.nought,
+					alias: clientHash[clientId].alias
 				})
 
 				if (game.players.length > MAX_CLIENTS_PER_CONN) return
@@ -104,13 +109,14 @@ server.on('connection', (sock) => {
 						game.board[row][col] = player.piece
 						game.playerTurn = (game.playerTurn + 1) % 2
 					}
-					console.log(game.players.at(-1), 'clicked', [row, col])
+					console.log(player.alias, 'played at', [row, col])
+					// console.log(game.players.at(-1).alias, 'clicked', [row, col])
 					// TODO: Use this to maintain the turn instead of the above
-					// if(game.playerTurn === player.piece) {
-					// 	game.board[row][col] = player.piece
-					// 	game.playerTurn = (player.piece - 1) % 2
-					// }
-					console.log(clientID, 'clicked', [row, col])
+					if(game.playerTurn === player.piece) {
+						// game.board[row][col] = player.piece
+						// game.playerTurn = (player.piece - 1) % 2
+					}
+					// console.log(clientID, 'clicked', [row, col])
 					const [isWin, path] = checkWin(row, col, game.board)
 					if (isWin) {
 						console.log('The game has been won:', checkWin(row, col, game.board))
@@ -159,7 +165,7 @@ server.on('connection', (sock) => {
 						delete games[gameId]
 						console.log('The game has been deleted')
 					}
-					clientHash[clientId].sock.close(1000, 'Player left.')
+					clientHash[clientId].sock.close(1000, `Player: ${player.alias} has left the game`)
 					delete clientHash[clientId]
 					console.log('Player left:', clientId)
 
