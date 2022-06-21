@@ -10,7 +10,7 @@ import { isElectron } from '../utils/electronCheck'
 import kumalala from '../../assets/audio/Kumalala.mp3'
 import styles from '../styles/game.module.css'
 import lBozo from '../../assets/audio/wasted.mp3'
-import { drawWinPath } from '../utils/boardUtils'
+import { drawWinPath, fullBoard } from '../utils/boardUtils'
 
 const WIDTH = 166
 export default function Welcome() {
@@ -122,6 +122,15 @@ export default function Welcome() {
 				ctx.current.lineWidth = 1.3
 				const piece = new Piece(ctx.current, game.board[normY][normX] as pieceType)
 				piece.drawAt(centreX, centreY, WIDTH / 3)
+			}
+			// if(game.board.)
+			// Check if the board is filled 
+			if (fullBoard(game.board)) {
+				canvasRef.current.removeEventListener('click', handleInput)
+				clearBoard()
+				setTimeout(() => {
+					canvasRef.current.addEventListener('click', handleInput)
+				}, 3000)
 			}
 		}
 

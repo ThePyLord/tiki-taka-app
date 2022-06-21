@@ -75,5 +75,16 @@ const clearBoard = ({ctx, canvas, width}: {
 	// render(ctx, size, )
 }
 
+const fullBoard = (board: number[][]) => {
+	let full = true
+	for (let i = 0; i < board.length; i++) {
+		for (let j = 0; j < board.length; j++) {
+			if (board[i][j] === null) {
+				full = false
+			}
+		}
+	}
+	return full
+}
 
-export { drawWinPath }
+export { drawWinPath, fullBoard }
