@@ -2,19 +2,18 @@
 
 TO DO:
 - Add a computer player 
-- ~~Add a way to check if anyone has won~~
-- ~~Add sound effects~~
+- Indicate to opponents if someone leaves a game, and clear the board.
 - Timeout?(if inactivity)
 - New server architecture
 
 
 IN PROGRESS:
-- Implement React.js to make navigation easier between pages(Lobby, Homepage, Game)
 - Multiplayer(2 players)
 	- Lobby for players to join
 	- Prompt for player names
 
 DONE:
+- Implement React.js to make navigation easier between pages(Lobby, Homepage, Game)
 - Draw a line along the winning path
 - Add sound effects 
 - Persist the app theme

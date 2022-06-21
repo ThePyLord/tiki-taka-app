@@ -149,11 +149,11 @@ export default function Welcome() {
 				const savesta = new SoundsOfTiki(lBozo)
 				savesta.play()
 			}
-			piece.drawAt(centreX, centreY, cellWidth)
+			piece.drawAt(centreX, centreY, cellWidth / 3)
 			drawWinPath({
 				ctx: ctx.current,
 				path: game.path,
-				cellWidth: cellWidth,
+				cellWidth: cellWidth / 3,
 			})
 			canvasRef.current.removeEventListener('click', handleInput)
 			setTimeout(() => {
