@@ -138,6 +138,7 @@ export default function Welcome() {
 			const game = JSON.parse(data) as DataPayload
 			const [centreX, centreY] = game.coord
 			const [normX, normY] = normCoords(centreX, centreY)
+			const piece = new Piece(ctx.current, game.board[normY][normX] as pieceType)
 			ctx.current.lineWidth = 1.3
 			const clientId = game.players.find(p => p.clientId == userId).clientId
 			if (game.winner === clientId) {
@@ -148,6 +149,7 @@ export default function Welcome() {
 				const savesta = new SoundsOfTiki(lBozo)
 				savesta.play()
 			}
+			piece.drawAt(centreX, centreY, cellWidth)
 			drawWinPath({
 				ctx: ctx.current,
 				path: game.path,
