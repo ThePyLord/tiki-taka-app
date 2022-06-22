@@ -7,12 +7,13 @@ import Piece from '../components/Piece'
 import Modal from '../components/Modal'
 import { ThemeContext } from '../components/Theme'
 import { isElectron } from '../utils/electronCheck'
-import kumalala from '../../assets/audio/Kumalala.mp3'
-import styles from '../styles/game.module.css'
+import { /* drawWinPath, */ fullBoard } from '../utils/boardUtils'
+import kumalala from '../../assets/audio/lesgooo.mp3'
 import lBozo from '../../assets/audio/wasted.mp3'
-import { drawWinPath, fullBoard } from '../utils/boardUtils'
+import styles from '../styles/game.module.css'
 
 const WIDTH = 166
+
 export default function Welcome() {
 	const [userId, setUserId] = useState('')
 	const [username, setUsername] = useState('')
@@ -61,7 +62,68 @@ export default function Welcome() {
 		console.log('Sending payload: ', payload)
 		sockRef.current.send(JSON.stringify(payload))
 	}
-
+	function drawWinPath(path: number[][]) {
+		console.log('The path is:', path)
+		ctx.current.strokeStyle = '#2D47A0'
+		ctx.current.lineWidth = 5
+		ctx.current.lineCap = 'round'
+	
+		// Check if the path is horizontal or vertical
+		ctx.current.beginPath()
+		// Horizontal
+		if (path[0][1] === path[1][1]) {
+			// Time complexity: O(1) 😈
+			// WE'RE NOT THE SAME \\
+			ctx.current.moveTo(
+				(cellWidth / 2),
+				(path.at(-1)[1] * cellWidth) + (cellWidth / 2)
+			)
+			ctx.current.lineTo(
+				(path.at(-1)[0] * cellWidth) + (cellWidth / 2),
+				(path.at(-1)[1] * cellWidth) + (cellWidth / 2)
+			)
+	
+		}
+		// Vertical
+		else if (path[0][0] === path[1][0]) {
+			// Time complexity: O(1) 😈
+			ctx.current.moveTo(
+				(path[0][0] * cellWidth) + cellWidth / 2, // x
+				(path[0][1] * cellWidth) + cellWidth / 2 // y
+			)
+			ctx.current.lineTo(
+				(path.at(-1)[0] * cellWidth) + cellWidth / 2,
+				(path.at(-1)[1] * cellWidth) + cellWidth / 2
+			)
+		}
+		else {
+			// Convoluted antidiagonal check
+			// Basically checking if the last item in the path matches the reverse of the first
+			// e.g [0, 2] == [2, 0](in reverse)
+			if (path.at(-1)
+				.map(item => item)
+				.reverse()
+				.every((val, idx) => val === path[0][idx])) {
+				path.forEach(([x, y], idx) => {
+					if (idx !== path.length - 1) {
+						ctx.current.moveTo(x * cellWidth + (cellWidth / 2), y * cellWidth + (cellWidth / 2))
+						ctx.current.lineTo((x + 1) * cellWidth + (cellWidth / 2), (y - 1) * cellWidth + (cellWidth / 2))
+					}
+				})
+			}
+			else {
+				// posdiag
+				path.forEach(([x, y], idx) => {
+					if (idx !== path.length - 1) {
+						ctx.current.moveTo(x * cellWidth + (cellWidth / 2), y * cellWidth + (cellWidth / 2))
+						ctx.current.lineTo((x + 1) * cellWidth + (cellWidth / 2), (y + 1) * cellWidth + (cellWidth / 2))
+					}
+				})
+			}
+		}
+		ctx.current.stroke()
+	}
+	
 	const onMessage = useCallback((ev: MessageEvent) => {
 		const { data, type }: MessagePayload = JSON.parse(ev.data)
 		if (type === 'connect') {
@@ -75,17 +137,7 @@ export default function Welcome() {
 					userName: userName
 				}
 			}
-			sockRef.current.send(
-				JSON.stringify(
-					{
-						type: 'connect',
-						data: JSON.stringify({
-							userId: data,
-							userName: userName
-						})
-					}
-				)
-			)
+			sockRef.current.send(JSON.stringify(payload, (key, val) => val))
 		}
 
 		if (type === 'create') {
@@ -123,12 +175,11 @@ export default function Welcome() {
 				const piece = new Piece(ctx.current, game.board[normY][normX] as pieceType)
 				piece.drawAt(centreX, centreY, WIDTH / 3)
 			}
-			// if(game.board.)
 			// Check if the board is filled 
 			if (fullBoard(game.board)) {
 				canvasRef.current.removeEventListener('click', handleInput)
-				clearBoard()
 				setTimeout(() => {
+					clearBoard()
 					canvasRef.current.addEventListener('click', handleInput)
 				}, 3000)
 			}
@@ -150,15 +201,19 @@ export default function Welcome() {
 				savesta.play()
 			}
 			piece.drawAt(centreX, centreY, cellWidth / 3)
-			drawWinPath({
-				ctx: ctx.current,
-				path: game.path,
-				cellWidth: cellWidth / 3,
-			})
+			// drawWinPath({
+			// 	ctx: ctx.current,
+			// 	path: game.path,
+			// 	cellWidth: cellWidth / 3,
+			// })
+			drawWinPath(game.path)
 			canvasRef.current.removeEventListener('click', handleInput)
 			setTimeout(() => {
 				clearBoard()
-			}, 3000);
+				console.log('adding click after win');
+				canvasRef.current.addEventListener('click', handleInput)
+			}, 3000)
+			Object.values(sounds).forEach(snd => snd.stop())
 		}
 
 	}, [userId, gameId, cellWidth, boardSize])
@@ -221,18 +276,18 @@ export default function Welcome() {
 	}, [])
 
 	useEffect(() => {
-		// destroy the sounds when the component is unmounted
-		return () => {
-			Object.values(sounds).forEach(s => s.destroy())
-		}
-	}, [sounds]);
-	useEffect(() => {
 		sockRef.current.addEventListener('message', onMessage)
 		return () => {
 			sockRef.current.removeEventListener('message', onMessage)
 		}
 	}, [onMessage])
-
+	
+	// useEffect(() => {
+	// 	// destroy the sounds when the component is unmounted
+	// 	return () => {
+	// 		Object.values(sounds).forEach(s => s.destroy())
+	// 	}
+	// }, [sounds])
 	function normCoords(x: number, y: number): [number, number] {
 		const normX = Math.floor(x / cellWidth)
 		const normY = Math.floor(y / cellWidth)
