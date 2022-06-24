@@ -48,7 +48,7 @@
         [
           "@electron-forge/plugin-webpack",
           {
-            "devContentSecurityPolicy": "default-src 'self' 'unsafe-inline' data:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' ws:; img-src 'self' https://c.tenor.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
+            "devContentSecurityPolicy": "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' ws:; img-src 'self' https://c.tenor.com; font-src 'self' 'unsafe-inline' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;",
             "port": 5500,
             "loggerPort": 9002,
             "host": "0.0.0.0",
@@ -113,11 +113,11 @@
   },
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
+    "framer-motion": "^6.3.13",
     "mongoose": "^6.0.14",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
-    "socket.io": "^4.4.0",
     "ws": "^8.4.0"
   },
   "overrides": {

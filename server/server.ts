@@ -27,12 +27,13 @@ server.on('connection', (sock) => {
 	}
 	sock.send(JSON.stringify(payload))
 	sock.on('message', message => {
-		let response = JSON.parse(message.toString()) as MessagePayload
+		let response = JSON.parse(message.toString())
 		if(response.type == 'connect') {
 			console.log('CONNECT:', response.data)
-			const data = JSON.parse(JSON.stringify(response.data))
-			console.log('User connected:', data.userName)
-			clientHash[data.userId].alias = data.userName
+			// const data = JSON.parse(response.data)
+			const {userId, userName} = response.data
+			console.log('User connected:', /* data. */userName)
+			clientHash[/* data. */userId].alias = /* data. */userName
 		}
 		// Create a game
 		if (response.type === 'create') {
@@ -75,7 +76,7 @@ server.on('connection', (sock) => {
 				if (game.players.length > MAX_CLIENTS_PER_CONN) return
 				if (game.players.length == MAX_CLIENTS_PER_CONN) {
 					game.playerTurn = game.players[0].piece
-					console.log('Starting with: ', game.playerTurn, 'client is: ', clientId, 'piece is: ', game.players[0].piece)
+					console.log('Starting with:', game.playerTurn, 'client is: ', clientId, 'piece is: ', game.players[0].piece)
 					update()
 				}
 				response = {
@@ -96,22 +97,20 @@ server.on('connection', (sock) => {
 			// causes the board to transpose the coordinates
 			const [row, col] = [parseInt(y), parseInt(x)]
 			if (game) {
-				played.push(clientId)
-
 				const player = game.players.find(p => p.clientId === clientId)
+
 				if (game.board[row][col] === null) {
 					game.coord = [parseInt(centreX), parseInt(centreY)]
-					if (played.at(-1) !== played.at(-2)) {
-						game.board[row][col] = player.piece
-						game.playerTurn = (game.playerTurn + 1) % 2
-					}
-					console.log(player.alias, 'played at', [row, col])
-					// TODO: Use this to maintain the turn instead of the above
+				
+					console.log(`It's ${player.alias}'s turn`)
+		
 					if(game.playerTurn === player.piece) {
-						// game.board[row][col] = player.piece
-						// game.playerTurn = (player.piece - 1) % 2
+						// SUCCESS
+						game.board[row][col] = player.piece
+						game.playerTurn = player.piece == pieceType.nought ? pieceType.cross : pieceType.nought
+						console.log(player.alias, 'played at', [row, col])
 					}
-					// console.log(clientID, 'clicked', [row, col])
+
 					const [isWin, path] = checkWin(row, col, game.board)
 					if (isWin) {
 						console.log('The game has been won:', checkWin(row, col, game.board))

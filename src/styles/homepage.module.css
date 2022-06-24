@@ -9,8 +9,8 @@
 	height: 100vh;
 	background-color: #ffffffcc;
 	opacity: 1;
-	background-image: linear-gradient(45deg,#85b074, #14e6d8, #b959be);
-	background-size: 200%;
+	background-image: linear-gradient(45deg,#699757, #14e6d8, #b959be, #fa8a52);
+	background-size: 400%;
 	animation: bg-animation 45s infinite;
 	user-select: none;
 }

@@ -1,5 +1,5 @@
 import { pieceType } from '../../src/components/Piece'
-import ws from "ws"
+import ws from 'ws'
 
 type payloadType = 'connect' | 'join' | 'leave' | 'create' | 'message' | 'move' | 'win'
 export { pieceType }
@@ -44,5 +44,5 @@ export interface DataPayload {
 export interface Lobby {
 	id: string
 	name: string
-	players: IHash
+	players: IHash[]
 }

@@ -24,6 +24,7 @@ export default function Welcome() {
 		kumalala: new SoundsOfTiki(kumalala),
 		lBozo: new SoundsOfTiki(lBozo),
 	})
+	const [turn, setTurn] = useState(false)
 	const canvasRef = useRef<HTMLCanvasElement>(null)
 	const ctx = useRef<CanvasRenderingContext2D>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
@@ -168,6 +169,8 @@ export default function Welcome() {
 
 		if (type === 'move') {
 			const game = JSON.parse(data) as DataPayload
+			const player = game.players.find(p => p.clientId == userId)
+			setTurn(game.playerTurn === player.piece)
 			if (game.coord) {
 				const [centreX, centreY] = game.coord
 				const [normX, normY] = normCoords(centreX, centreY)
@@ -190,7 +193,6 @@ export default function Welcome() {
 			const [centreX, centreY] = game.coord
 			const [normX, normY] = normCoords(centreX, centreY)
 			const piece = new Piece(ctx.current, game.board[normY][normX] as pieceType)
-			ctx.current.lineWidth = 1.3
 			const clientId = game.players.find(p => p.clientId == userId).clientId
 			if (game.winner === clientId) {
 				const kumala = new SoundsOfTiki(kumalala)
@@ -201,11 +203,6 @@ export default function Welcome() {
 				savesta.play()
 			}
 			piece.drawAt(centreX, centreY, cellWidth / 3)
-			// drawWinPath({
-			// 	ctx: ctx.current,
-			// 	path: game.path,
-			// 	cellWidth: cellWidth / 3,
-			// })
 			drawWinPath(game.path)
 			canvasRef.current.removeEventListener('click', handleInput)
 			setTimeout(() => {
@@ -316,6 +313,7 @@ export default function Welcome() {
 						To make a move, click on an empty square.
 					</p>
 					<h3>Connected as {username}</h3>
+					<h4 className={turn ? styles.turn : styles.inactive}>{turn ? `It's your turn` : `Wait for the other player to make a move`}</h4>
 					<button className={styles.btn} onClick={toggleTheme}>Toggle Theme | {theme === 'light' ? '☀️' : '🌑'}</button>
 					<Button onClick={onCreate} text='Create Game' />
 					<div id={styles.create}>Game ID: {gameId}</div>
