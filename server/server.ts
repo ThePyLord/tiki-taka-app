@@ -29,7 +29,8 @@ server.on('connection', (sock) => {
 	sock.on('message', message => {
 		let response = JSON.parse(message.toString()) as MessagePayload
 		if(response.type == 'connect') {
-			const data = JSON.parse(response.data)
+			console.log('CONNECT:', response.data)
+			const data = JSON.parse(JSON.stringify(response.data))
 			console.log('User connected:', data.userName)
 			clientHash[data.userId].alias = data.userName
 		}
@@ -37,7 +38,6 @@ server.on('connection', (sock) => {
 		if (response.type === 'create') {
 			const gameId = randomUUID()
 			const connId = response.data
-			// console.log('The payload is:', response)
 			// Initialize a new game
 			games[gameId] = {
 				id: gameId,
@@ -53,17 +53,14 @@ server.on('connection', (sock) => {
 				type: 'create',
 				data: JSON.stringify(games[gameId])
 			}
-			// console.log('The game is:', games[gameId])
 			clientHash[connId].sock.send(JSON.stringify(response))
 		}
 
 		// Join a game
 		if (response.type === 'join') {
-			// console.log('The payload is:', response)
 			const [clientId, gameId] = response.data.split(',')
 			if (games[gameId]) {
 				const game = games[gameId]
-				// console.log('game exists.')
 				game.players.forEach(p => {
 					if (p.clientId === clientId) {
 						console.log('This client is already in the game')
@@ -85,7 +82,7 @@ server.on('connection', (sock) => {
 					type: 'join',
 					data: JSON.stringify(game)
 				}
-				console.log('sending payload to ', game.players)
+				console.log('sending payload to ', game.players.map(player => player.alias))
 				game.players.forEach(p => {
 					clientHash[p.clientId].sock.send(JSON.stringify(response))
 				})
@@ -105,12 +102,10 @@ server.on('connection', (sock) => {
 				if (game.board[row][col] === null) {
 					game.coord = [parseInt(centreX), parseInt(centreY)]
 					if (played.at(-1) !== played.at(-2)) {
-						// Refuse to play if the last two players played the same move
 						game.board[row][col] = player.piece
 						game.playerTurn = (game.playerTurn + 1) % 2
 					}
 					console.log(player.alias, 'played at', [row, col])
-					// console.log(game.players.at(-1).alias, 'clicked', [row, col])
 					// TODO: Use this to maintain the turn instead of the above
 					if(game.playerTurn === player.piece) {
 						// game.board[row][col] = player.piece
@@ -120,7 +115,9 @@ server.on('connection', (sock) => {
 					const [isWin, path] = checkWin(row, col, game.board)
 					if (isWin) {
 						console.log('The game has been won:', checkWin(row, col, game.board))
-						game.winner = game.players.find(p => p.clientId === clientId).clientId
+						game.winner = player.clientId
+						const winner = player.alias
+						console.log(`${winner} won the game!!!`)
 						game.path = path.map(coords => coords.reverse())
 						const payload = {
 							type: 'win',
