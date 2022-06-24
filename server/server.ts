@@ -13,7 +13,7 @@ let payload: MessagePayload = {
 	type: 'message',
 	data: 'Too many clients connected'
 }
-const played: string[] = []
+
 server.on('connection', (sock) => {
 	const clientID = randomUUID()
 	clientHash[clientID] = {
@@ -28,12 +28,11 @@ server.on('connection', (sock) => {
 	sock.send(JSON.stringify(payload))
 	sock.on('message', message => {
 		let response = JSON.parse(message.toString())
-		if(response.type == 'connect') {
+		if (response.type == 'connect') {
 			console.log('CONNECT:', response.data)
-			// const data = JSON.parse(response.data)
-			const {userId, userName} = response.data
-			console.log('User connected:', /* data. */userName)
-			clientHash[/* data. */userId].alias = /* data. */userName
+			const { userId, userName } = response.data
+			console.log('User connected:', userName)
+			clientHash[userId].alias = userName
 		}
 		// Create a game
 		if (response.type === 'create') {
@@ -101,10 +100,10 @@ server.on('connection', (sock) => {
 
 				if (game.board[row][col] === null) {
 					game.coord = [parseInt(centreX), parseInt(centreY)]
-				
+
 					console.log(`It's ${player.alias}'s turn`)
-		
-					if(game.playerTurn === player.piece) {
+
+					if (game.playerTurn === player.piece) {
 						// SUCCESS
 						game.board[row][col] = player.piece
 						game.playerTurn = player.piece == pieceType.nought ? pieceType.cross : pieceType.nought
@@ -144,7 +143,7 @@ server.on('connection', (sock) => {
 				}
 			}
 		}
-		if(response.type == 'leave') {
+		if (response.type == 'leave') {
 			const [clientId, gameId] = response.data.split(',')
 			const game = games[gameId]
 			if (game) {

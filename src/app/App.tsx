@@ -8,7 +8,7 @@ import {
 import Welcome from '../pages/Welcome'
 import HomePage from '../pages/HomePage'
 import TitleBar from '../components/TitleBar'
-import Lobby from '../pages/Lobby'
+// import Lobby from '../pages/Lobby'
 import styles from '../styles/window.module.css'
 import { isElectron } from '../utils/electronCheck'
 import { Theme } from '../components/Theme'
@@ -23,7 +23,7 @@ function App() {
 				<Routes>
 					<Route path="/main_window" element={<HomePage />} />
 					<Route path="/welcome" element={<Welcome />} />
-					<Route path="/lobby" element={<Lobby />} />
+					{/* <Route path="/lobby" element={<Lobby />} /> */}
 					<Route path='*' element={<HomePage />} />
 				</Routes>
 			</Router>
